@@ -1,0 +1,1042 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WorkForce Pro - 工讀生管理系統</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        * { transition: all 0.3s ease; }
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .glass {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
+        }
+        .card-hover:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        }
+        .tab-active {
+            border-bottom: 3px solid #667eea;
+            color: #667eea;
+        }
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-in { animation: slideIn 0.5s ease-out; }
+        .qr-scanner {
+            border: 3px dashed #667eea;
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+        .notification-badge {
+            animation: bounce 1s infinite;
+        }
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-3px); }
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <div id="app" class="min-h-screen">
+        <!-- 登入頁面 -->
+        <div id="loginPage" class="gradient-bg min-h-screen flex items-center justify-center p-4">
+            <div class="glass rounded-2xl p-8 w-full max-w-md animate-in">
+                <div class="text-center mb-8">
+                    <div class="w-20 h-20 bg-gradient-to-r from-purple-500 to-indigo-600 rounded-full mx-auto mb-4 flex items-center justify-center">
+                        <i class="fas fa-users text-white text-3xl"></i>
+                    </div>
+                    <h1 class="text-3xl font-bold text-gray-800">WorkForce Pro</h1>
+                    <p class="text-gray-600 mt-2">專業工讀生管理平台</p>
+                </div>
+                
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">電子郵件</label>
+                        <input type="email" placeholder="admin@company.com" class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">密碼</label>
+                        <input type="password" placeholder="••••••••" class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 outline-none">
+                    </div>
+                    <button onclick="showDashboard()" class="w-full bg-gradient-to-r from-purple-600 to-indigo-600 text-white py-3 rounded-lg font-semibold hover:shadow-lg transform hover:scale-105">
+                        登入系統
+                    </button>
+                </div>
+                
+                <div class="mt-6 text-center">
+                    <button onclick="showWorkerView()" class="text-purple-600 hover:text-purple-800 text-sm">
+                        工讀生入口 →
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 管理員儀表板 -->
+        <div id="adminDashboard" class="hidden">
+            <!-- 導航列 -->
+            <nav class="bg-white shadow-sm border-b">
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div class="flex justify-between h-16">
+                        <div class="flex items-center">
+                            <div class="flex items-center space-x-8">
+                                <div class="flex items-center">
+                                    <div class="w-8 h-8 bg-gradient-to-r from-purple-500 to-indigo-600 rounded-lg flex items-center justify-center">
+                                        <i class="fas fa-layer-group text-white"></i>
+                                    </div>
+                                    <span class="ml-2 text-xl font-bold text-gray-800">WorkForce Pro</span>
+                                </div>
+                                <div class="hidden md:flex space-x-6">
+                                    <button id="overviewBtn" onclick="setAdminTab('overview')" class="admin-tab px-3 py-2 text-gray-700 hover:text-purple-600 font-medium tab-active">總覽</button>
+                                    <button id="eventsBtn" onclick="setAdminTab('events')" class="admin-tab px-3 py-2 text-gray-700 hover:text-purple-600 font-medium">活動管理</button>
+                                    <button id="workersBtn" onclick="setAdminTab('workers')" class="admin-tab px-3 py-2 text-gray-700 hover:text-purple-600 font-medium">工讀生</button>
+                                    <button id="checkinBtn" onclick="setAdminTab('checkin')" class="admin-tab px-3 py-2 text-gray-700 hover:text-purple-600 font-medium">簽到管理</button>
+                                    <button id="salaryBtn" onclick="setAdminTab('salary')" class="admin-tab px-3 py-2 text-gray-700 hover:text-purple-600 font-medium">薪資結算</button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flex items-center space-x-4">
+                            <div class="relative">
+                                <i class="fas fa-bell text-gray-600 cursor-pointer hover:text-purple-600"></i>
+                                <span class="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full notification-badge"></span>
+                            </div>
+                            <div class="flex items-center space-x-2">
+                                <div class="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center">
+                                    <span class="text-sm font-semibold text-purple-600">A</span>
+                                </div>
+                                <span class="text-gray-700 hidden sm:block">管理員</span>
+                            </div>
+                            <button onclick="showLogin()" class="text-gray-500 hover:text-gray-700">
+                                <i class="fas fa-sign-out-alt"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </nav>
+
+            <!-- 總覽頁面 -->
+            <div id="overviewTab" class="admin-content p-6">
+                <div class="max-w-7xl mx-auto animate-in">
+                    <h2 class="text-2xl font-bold text-gray-800 mb-6">儀表板總覽</h2>
+                    
+                    <!-- 統計卡片 -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                        <div class="bg-white rounded-xl p-6 card-hover cursor-pointer">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-gray-500 text-sm">本月活動</p>
+                                    <p class="text-3xl font-bold text-gray-800 mt-2">12</p>
+                                    <p class="text-green-600 text-sm mt-2">↑ 20% 較上月</p>
+                                </div>
+                                <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
+                                    <i class="fas fa-calendar text-purple-600 text-xl"></i>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-white rounded-xl p-6 card-hover cursor-pointer">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-gray-500 text-sm">活躍工讀生</p>
+                                    <p class="text-3xl font-bold text-gray-800 mt-2">248</p>
+                                    <p class="text-green-600 text-sm mt-2">↑ 15% 較上月</p>
+                                </div>
+                                <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                                    <i class="fas fa-users text-blue-600 text-xl"></i>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-white rounded-xl p-6 card-hover cursor-pointer">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-gray-500 text-sm">今日簽到</p>
+                                    <p class="text-3xl font-bold text-gray-800 mt-2">89</p>
+                                    <p class="text-blue-600 text-sm mt-2">進行中</p>
+                                </div>
+                                <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                                    <i class="fas fa-check-circle text-green-600 text-xl"></i>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-white rounded-xl p-6 card-hover cursor-pointer">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-gray-500 text-sm">待結薪資</p>
+                                    <p class="text-3xl font-bold text-gray-800 mt-2">$48.5K</p>
+                                    <p class="text-orange-600 text-sm mt-2">3 筆待確認</p>
+                                </div>
+                                <div class="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center">
+                                    <i class="fas fa-dollar-sign text-orange-600 text-xl"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 今日活動 -->
+                    <div class="bg-white rounded-xl p-6 mb-6">
+                        <h3 class="text-lg font-semibold text-gray-800 mb-4">今日活動</h3>
+                        <div class="space-y-3">
+                            <div class="flex items-center justify-between p-4 bg-purple-50 rounded-lg">
+                                <div class="flex items-center space-x-4">
+                                    <div class="w-2 h-12 bg-purple-500 rounded-full"></div>
+                                    <div>
+                                        <p class="font-semibold text-gray-800">2025 科技論壇</p>
+                                        <p class="text-sm text-gray-600">台北國際會議中心 • 09:00-18:00</p>
+                                    </div>
+                                </div>
+                                <div class="flex items-center space-x-4">
+                                    <span class="bg-green-100 text-green-700 px-3 py-1 rounded-full text-sm">進行中</span>
+                                    <span class="text-gray-600">45/50 人</span>
+                                </div>
+                            </div>
+                            
+                            <div class="flex items-center justify-between p-4 bg-blue-50 rounded-lg">
+                                <div class="flex items-center space-x-4">
+                                    <div class="w-2 h-12 bg-blue-500 rounded-full"></div>
+                                    <div>
+                                        <p class="font-semibold text-gray-800">品牌發表會</p>
+                                        <p class="text-sm text-gray-600">信義區新光三越 • 14:00-20:00</p>
+                                    </div>
+                                </div>
+                                <div class="flex items-center space-x-4">
+                                    <span class="bg-yellow-100 text-yellow-700 px-3 py-1 rounded-full text-sm">準備中</span>
+                                    <span class="text-gray-600">28/30 人</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 活動管理頁面 -->
+            <div id="eventsTab" class="admin-content hidden p-6">
+                <div class="max-w-7xl mx-auto animate-in">
+                    <div class="flex justify-between items-center mb-6">
+                        <h2 class="text-2xl font-bold text-gray-800">活動管理</h2>
+                        <button onclick="showCreateEvent()" class="bg-gradient-to-r from-purple-600 to-indigo-600 text-white px-6 py-2 rounded-lg hover:shadow-lg">
+                            <i class="fas fa-plus mr-2"></i>建立活動
+                        </button>
+                    </div>
+                    
+                    <div class="bg-white rounded-xl shadow-sm overflow-hidden">
+                        <div class="p-4 border-b">
+                            <div class="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-4">
+                                <input type="text" placeholder="搜尋活動名稱..." class="flex-1 px-4 py-2 border rounded-lg focus:outline-none focus:border-purple-500">
+                                <select class="px-4 py-2 border rounded-lg focus:outline-none focus:border-purple-500">
+                                    <option>全部狀態</option>
+                                    <option>籌備中</option>
+                                    <option>進行中</option>
+                                    <option>已結束</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="overflow-x-auto">
+                            <table class="w-full">
+                                <thead class="bg-gray-50">
+                                    <tr>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">活動名稱</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">日期</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden md:table-cell">地點</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">人數</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">狀態</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">操作</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-gray-200">
+                                    <tr class="hover:bg-gray-50">
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <div class="font-medium text-gray-900">2025 科技論壇</div>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-gray-500">2025/01/15</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-gray-500 hidden md:table-cell">台北國際會議中心</td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <span class="text-purple-600 font-medium">45</span> / 50
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <span class="px-2 py-1 text-xs rounded-full bg-green-100 text-green-800">進行中</span>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm">
+                                            <button class="text-purple-600 hover:text-purple-900 mr-3">管理</button>
+                                            <button onclick="showQRCode()" class="text-blue-600 hover:text-blue-900">QR</button>
+                                        </td>
+                                    </tr>
+                                    <tr class="hover:bg-gray-50">
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <div class="font-medium text-gray-900">品牌發表會</div>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-gray-500">2025/01/15</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-gray-500 hidden md:table-cell">信義區新光三越</td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <span class="text-purple-600 font-medium">28</span> / 30
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <span class="px-2 py-1 text-xs rounded-full bg-yellow-100 text-yellow-800">準備中</span>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm">
+                                            <button class="text-purple-600 hover:text-purple-900 mr-3">管理</button>
+                                            <button onclick="showQRCode()" class="text-blue-600 hover:text-blue-900">QR</button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 簽到管理頁面 -->
+            <div id="checkinTab" class="admin-content hidden p-6">
+                <div class="max-w-7xl mx-auto animate-in">
+                    <h2 class="text-2xl font-bold text-gray-800 mb-6">簽到管理</h2>
+                    
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                        <!-- QR Code 顯示區 -->
+                        <div class="bg-white rounded-xl p-6">
+                            <h3 class="text-lg font-semibold text-gray-800 mb-4">活動 QR Code</h3>
+                            <div class="qr-scanner rounded-lg p-8 flex items-center justify-center mb-4">
+                                <div class="text-center">
+                                    <i class="fas fa-qrcode text-purple-600 text-6xl mb-4"></i>
+                                    <p class="text-gray-600">2025 科技論壇</p>
+                                    <p class="text-sm text-gray-500 mt-2">自動更新：29秒</p>
+                                </div>
+                            </div>
+                            <button class="w-full bg-purple-600 text-white py-2 rounded-lg hover:bg-purple-700">
+                                下載 QR Code
+                            </button>
+                        </div>
+                        
+                        <!-- 即時簽到記錄 -->
+                        <div class="lg:col-span-2 bg-white rounded-xl p-6">
+                            <div class="flex justify-between items-center mb-4">
+                                <h3 class="text-lg font-semibold text-gray-800">即時簽到記錄</h3>
+                                <span class="bg-green-100 text-green-700 px-3 py-1 rounded-full text-sm">
+                                    <span class="inline-block w-2 h-2 bg-green-500 rounded-full mr-2 animate-pulse"></span>
+                                    即時更新
+                                </span>
+                            </div>
+                            
+                            <div class="space-y-3 max-h-96 overflow-y-auto">
+                                <div class="flex items-center justify-between p-3 bg-green-50 rounded-lg">
+                                    <div class="flex items-center space-x-3">
+                                        <div class="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
+                                            <i class="fas fa-check text-green-600"></i>
+                                        </div>
+                                        <div>
+                                            <p class="font-medium text-gray-800">王小明</p>
+                                            <p class="text-sm text-gray-500">簽到 • QR Code</p>
+                                        </div>
+                                    </div>
+                                    <span class="text-sm text-gray-500">09:05:23</span>
+                                </div>
+                                
+                                <div class="flex items-center justify-between p-3 bg-blue-50 rounded-lg">
+                                    <div class="flex items-center space-x-3">
+                                        <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
+                                            <i class="fas fa-sign-out-alt text-blue-600"></i>
+                                        </div>
+                                        <div>
+                                            <p class="font-medium text-gray-800">李小華</p>
+                                            <p class="text-sm text-gray-500">簽退 • GPS 定位</p>
+                                        </div>
+                                    </div>
+                                    <span class="text-sm text-gray-500">09:03:45</span>
+                                </div>
+                                
+                                <div class="flex items-center justify-between p-3 bg-green-50 rounded-lg">
+                                    <div class="flex items-center space-x-3">
+                                        <div class="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
+                                            <i class="fas fa-check text-green-600"></i>
+                                        </div>
+                                        <div>
+                                            <p class="font-medium text-gray-800">張大偉</p>
+                                            <p class="text-sm text-gray-500">簽到 • 人臉辨識</p>
+                                        </div>
+                                    </div>
+                                    <span class="text-sm text-gray-500">09:02:10</span>
+                                </div>
+                            </div>
+                            
+                            <!-- 打卡方式統計 -->
+                            <div class="mt-6 pt-6 border-t">
+                                <p class="text-sm font-medium text-gray-700 mb-3">打卡方式統計</p>
+                                <div class="grid grid-cols-3 gap-4">
+                                    <div class="text-center">
+                                        <div class="text-2xl font-bold text-purple-600">32</div>
+                                        <div class="text-xs text-gray-500">QR Code</div>
+                                    </div>
+                                    <div class="text-center">
+                                        <div class="text-2xl font-bold text-blue-600">28</div>
+                                        <div class="text-xs text-gray-500">GPS 定位</div>
+                                    </div>
+                                    <div class="text-center">
+                                        <div class="text-2xl font-bold text-green-600">15</div>
+                                        <div class="text-xs text-gray-500">人臉辨識</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 薪資結算頁面 -->
+            <div id="salaryTab" class="admin-content hidden p-6">
+                <div class="max-w-7xl mx-auto animate-in">
+                    <div class="flex justify-between items-center mb-6">
+                        <h2 class="text-2xl font-bold text-gray-800">薪資結算</h2>
+                        <button class="bg-gradient-to-r from-purple-600 to-indigo-600 text-white px-6 py-2 rounded-lg hover:shadow-lg">
+                            <i class="fas fa-calculator mr-2"></i>計算薪資
+                        </button>
+                    </div>
+                    
+                    <div class="bg-white rounded-xl shadow-sm overflow-hidden">
+                        <div class="p-6 border-b">
+                            <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between space-y-2 sm:space-y-0">
+                                <div class="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-4">
+                                    <select class="px-4 py-2 border rounded-lg">
+                                        <option>2025年1月</option>
+                                        <option>2024年12月</option>
+                                    </select>
+                                    <select class="px-4 py-2 border rounded-lg">
+                                        <option>全部狀態</option>
+                                        <option>待確認</option>
+                                        <option>已確認</option>
+                                        <option>已付款</option>
+                                    </select>
+                                </div>
+                                <button class="text-purple-600 hover:text-purple-800">
+                                    <i class="fas fa-download mr-2"></i>匯出報表
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="overflow-x-auto">
+                            <table class="w-full">
+                                <thead class="bg-gray-50">
+                                    <tr>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">工讀生</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">工時</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase hidden sm:table-cell">時薪</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">應付金額</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">狀態</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">操作</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-gray-200">
+                                    <tr class="hover:bg-gray-50">
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <div class="flex items-center">
+                                                <div class="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center mr-3">
+                                                    <span class="text-sm font-semibold text-purple-600">王</span>
+                                                </div>
+                                                <div>
+                                                    <div class="font-medium text-gray-900">王小明</div>
+                                                    <div class="text-sm text-gray-500">工讀生</div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-gray-900">32 小時</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-gray-900 hidden sm:table-cell">$200</td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <span class="text-lg font-semibold text-green-600">$6,400</span>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <span class="px-2 py-1 text-xs rounded-full bg-yellow-100 text-yellow-800">待工讀生確認</span>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm">
+                                            <button onclick="showPaymentConfirm()" class="text-purple-600 hover:text-purple-900 mr-2">確認</button>
+                                            <button class="text-blue-600 hover:text-blue-900">明細</button>
+                                        </td>
+                                    </tr>
+                                    <tr class="hover:bg-gray-50">
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <div class="flex items-center">
+                                                <div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center mr-3">
+                                                    <span class="text-sm font-semibold text-blue-600">李</span>
+                                                </div>
+                                                <div>
+                                                    <div class="font-medium text-gray-900">李小華</div>
+                                                    <div class="text-sm text-gray-500">工讀生</div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-gray-900">28 小時</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-gray-900 hidden sm:table-cell">$200</td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <span class="text-lg font-semibold text-green-600">$5,600</span>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <span class="px-2 py-1 text-xs rounded-full bg-green-100 text-green-800">已確認</span>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm">
+                                            <button class="text-green-600 hover:text-green-900 mr-2">付款</button>
+                                            <button class="text-blue-600 hover:text-blue-900">明細</button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 工讀生管理頁面 -->
+            <div id="workersTab" class="admin-content hidden p-6">
+                <div class="max-w-7xl mx-auto animate-in">
+                    <div class="flex justify-between items-center mb-6">
+                        <h2 class="text-2xl font-bold text-gray-800">工讀生管理</h2>
+                        <button class="bg-gradient-to-r from-purple-600 to-indigo-600 text-white px-6 py-2 rounded-lg hover:shadow-lg">
+                            <i class="fas fa-user-plus mr-2"></i>新增工讀生
+                        </button>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        <div class="bg-white rounded-xl p-6 card-hover cursor-pointer">
+                            <div class="flex items-center justify-between mb-4">
+                                <div class="w-12 h-12 bg-gradient-to-r from-purple-400 to-pink-400 rounded-full flex items-center justify-center">
+                                    <span class="text-white font-bold">王</span>
+                                </div>
+                                <span class="bg-green-100 text-green-700 px-2 py-1 rounded-full text-xs">活躍</span>
+                            </div>
+                            <h3 class="font-semibold text-gray-800">王小明</h3>
+                            <p class="text-sm text-gray-500 mb-3">接待員</p>
+                            <div class="space-y-2 text-sm">
+                                <div class="flex justify-between">
+                                    <span class="text-gray-500">本月工時：</span>
+                                    <span class="font-medium">32小時</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-gray-500">參與活動：</span>
+                                    <span class="font-medium">5場</span>
+                                </div>
+                            </div>
+                            <button class="w-full mt-4 bg-purple-50 text-purple-600 py-2 rounded-lg hover:bg-purple-100">查看詳情</button>
+                        </div>
+                        
+                        <div class="bg-white rounded-xl p-6 card-hover cursor-pointer">
+                            <div class="flex items-center justify-between mb-4">
+                                <div class="w-12 h-12 bg-gradient-to-r from-blue-400 to-cyan-400 rounded-full flex items-center justify-center">
+                                    <span class="text-white font-bold">李</span>
+                                </div>
+                                <span class="bg-green-100 text-green-700 px-2 py-1 rounded-full text-xs">活躍</span>
+                            </div>
+                            <h3 class="font-semibold text-gray-800">李小華</h3>
+                            <p class="text-sm text-gray-500 mb-3">活動助理</p>
+                            <div class="space-y-2 text-sm">
+                                <div class="flex justify-between">
+                                    <span class="text-gray-500">本月工時：</span>
+                                    <span class="font-medium">28小時</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-gray-500">參與活動：</span>
+                                    <span class="font-medium">4場</span>
+                                </div>
+                            </div>
+                            <button class="w-full mt-4 bg-purple-50 text-purple-600 py-2 rounded-lg hover:bg-purple-100">查看詳情</button>
+                        </div>
+                        
+                        <div class="bg-white rounded-xl p-6 card-hover cursor-pointer">
+                            <div class="flex items-center justify-between mb-4">
+                                <div class="w-12 h-12 bg-gradient-to-r from-green-400 to-teal-400 rounded-full flex items-center justify-center">
+                                    <span class="text-white font-bold">張</span>
+                                </div>
+                                <span class="bg-yellow-100 text-yellow-700 px-2 py-1 rounded-full text-xs">待命中</span>
+                            </div>
+                            <h3 class="font-semibold text-gray-800">張大偉</h3>
+                            <p class="text-sm text-gray-500 mb-3">攝影助理</p>
+                            <div class="space-y-2 text-sm">
+                                <div class="flex justify-between">
+                                    <span class="text-gray-500">本月工時：</span>
+                                    <span class="font-medium">15小時</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-gray-500">參與活動：</span>
+                                    <span class="font-medium">2場</span>
+                                </div>
+                            </div>
+                            <button class="w-full mt-4 bg-purple-50 text-purple-600 py-2 rounded-lg hover:bg-purple-100">查看詳情</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 工讀生視圖 -->
+        <div id="workerView" class="hidden">
+            <!-- 導航列 -->
+            <nav class="bg-white shadow-sm border-b">
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div class="flex justify-between h-16">
+                        <div class="flex items-center">
+                            <div class="flex items-center space-x-8">
+                                <div class="flex items-center">
+                                    <div class="w-8 h-8 bg-gradient-to-r from-purple-500 to-indigo-600 rounded-lg flex items-center justify-center">
+                                        <i class="fas fa-user text-white"></i>
+                                    </div>
+                                    <span class="ml-2 text-xl font-bold text-gray-800">我的工作台</span>
+                                </div>
+                                <div class="hidden md:flex space-x-6">
+                                    <button id="dashboardBtn" onclick="setWorkerTab('dashboard')" class="worker-tab px-3 py-2 text-gray-700 hover:text-purple-600 font-medium tab-active">總覽</button>
+                                    <button id="checkBtn" onclick="setWorkerTab('checkin')" class="worker-tab px-3 py-2 text-gray-700 hover:text-purple-600 font-medium">簽到簽退</button>
+                                    <button id="scheduleBtn" onclick="setWorkerTab('schedule')" class="worker-tab px-3 py-2 text-gray-700 hover:text-purple-600 font-medium">我的班表</button>
+                                    <button id="salaryViewBtn" onclick="setWorkerTab('salary')" class="worker-tab px-3 py-2 text-gray-700 hover:text-purple-600 font-medium">薪資明細</button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flex items-center space-x-4">
+                            <button onclick="showLogin()" class="text-gray-500 hover:text-gray-700">
+                                <i class="fas fa-sign-out-alt"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </nav>
+
+            <!-- 工讀生總覽 -->
+            <div id="workerDashboard" class="worker-content p-6">
+                <div class="max-w-6xl mx-auto animate-in">
+                    <div class="mb-6">
+                        <h1 class="text-2xl font-bold text-gray-800">嗨，王小明！</h1>
+                        <p class="text-gray-600 mt-1">歡迎回來，以下是您的工作概況</p>
+                    </div>
+                    
+                    <!-- 統計卡片 -->
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                        <div class="bg-white rounded-xl p-6">
+                            <div class="flex items-center justify-between mb-4">
+                                <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
+                                    <i class="fas fa-clock text-purple-600 text-xl"></i>
+                                </div>
+                                <span class="text-sm text-gray-500">本月</span>
+                            </div>
+                            <p class="text-2xl font-bold text-gray-800">32 小時</p>
+                            <p class="text-sm text-gray-500 mt-1">總工時</p>
+                        </div>
+                        
+                        <div class="bg-white rounded-xl p-6">
+                            <div class="flex items-center justify-between mb-4">
+                                <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                                    <i class="fas fa-dollar-sign text-green-600 text-xl"></i>
+                                </div>
+                                <span class="text-sm text-gray-500">本月</span>
+                            </div>
+                            <p class="text-2xl font-bold text-gray-800">$6,400</p>
+                            <p class="text-sm text-gray-500 mt-1">預計薪資</p>
+                        </div>
+                        
+                        <div class="bg-white rounded-xl p-6">
+                            <div class="flex items-center justify-between mb-4">
+                                <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                                    <i class="fas fa-calendar text-blue-600 text-xl"></i>
+                                </div>
+                                <span class="text-sm text-gray-500">本月</span>
+                            </div>
+                            <p class="text-2xl font-bold text-gray-800">5 場</p>
+                            <p class="text-sm text-gray-500 mt-1">參與活動</p>
+                        </div>
+                    </div>
+                    
+                    <!-- 今日活動 -->
+                    <div class="bg-white rounded-xl p-6">
+                        <h3 class="text-lg font-semibold text-gray-800 mb-4">今日活動</h3>
+                        <div class="bg-gradient-to-r from-purple-50 to-indigo-50 rounded-lg p-6">
+                            <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between space-y-4 sm:space-y-0">
+                                <div>
+                                    <h4 class="font-semibold text-gray-800 text-lg">2025 科技論壇</h4>
+                                    <p class="text-gray-600 mt-1">台北國際會議中心 3樓</p>
+                                    <div class="mt-3 space-y-1">
+                                        <p class="text-sm text-gray-500">工作時間：09:00 - 18:00</p>
+                                        <p class="text-sm text-gray-500">職務：接待員</p>
+                                        <p class="text-sm text-gray-500">時薪：$200</p>
+                                    </div>
+                                </div>
+                                <button onclick="setWorkerTab('checkin')" class="bg-gradient-to-r from-purple-600 to-indigo-600 text-white px-6 py-3 rounded-lg hover:shadow-lg">
+                                    前往簽到
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 簽到簽退頁面 -->
+            <div id="workerCheckin" class="worker-content hidden p-6">
+                <div class="max-w-4xl mx-auto animate-in">
+                    <h2 class="text-2xl font-bold text-gray-800 mb-6">簽到簽退</h2>
+                    
+                    <div class="bg-white rounded-xl p-6 mb-6">
+                        <h3 class="text-lg font-semibold text-gray-800 mb-4">選擇打卡方式</h3>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <button onclick="showQRScanner()" class="p-6 border-2 border-purple-200 rounded-lg hover:border-purple-500 hover:bg-purple-50 transition">
+                                <i class="fas fa-qrcode text-purple-600 text-3xl mb-3"></i>
+                                <p class="font-semibold text-gray-800">QR Code 掃描</p>
+                                <p class="text-sm text-gray-500 mt-1">掃描活動QR Code</p>
+                            </button>
+                            
+                            <button onclick="checkInGPS()" class="p-6 border-2 border-blue-200 rounded-lg hover:border-blue-500 hover:bg-blue-50 transition">
+                                <i class="fas fa-map-marker-alt text-blue-600 text-3xl mb-3"></i>
+                                <p class="font-semibold text-gray-800">GPS 定位</p>
+                                <p class="text-sm text-gray-500 mt-1">確認位置打卡</p>
+                            </button>
+                            
+                            <button class="p-6 border-2 border-green-200 rounded-lg hover:border-green-500 hover:bg-green-50 transition">
+                                <i class="fas fa-camera text-green-600 text-3xl mb-3"></i>
+                                <p class="font-semibold text-gray-800">人臉辨識</p>
+                                <p class="text-sm text-gray-500 mt-1">拍照驗證身份</p>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- 今日打卡記錄 -->
+                    <div class="bg-white rounded-xl p-6">
+                        <h3 class="text-lg font-semibold text-gray-800 mb-4">今日打卡記錄</h3>
+                        
+                        <div class="space-y-3">
+                            <div class="flex items-center justify-between p-4 bg-green-50 rounded-lg">
+                                <div class="flex items-center space-x-3">
+                                    <i class="fas fa-sign-in-alt text-green-600"></i>
+                                    <div>
+                                        <p class="font-medium text-gray-800">簽到</p>
+                                        <p class="text-sm text-gray-500">2025 科技論壇</p>
+                                    </div>
+                                </div>
+                                <div class="text-right">
+                                    <p class="font-medium text-gray-800">09:05:23</p>
+                                    <p class="text-sm text-gray-500">QR Code</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 我的班表 -->
+            <div id="workerSchedule" class="worker-content hidden p-6">
+                <div class="max-w-6xl mx-auto animate-in">
+                    <h2 class="text-2xl font-bold text-gray-800 mb-6">我的班表</h2>
+                    
+                    <div class="bg-white rounded-xl shadow-sm overflow-hidden">
+                        <div class="overflow-x-auto">
+                            <table class="w-full">
+                                <thead class="bg-gray-50">
+                                    <tr>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">日期</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">活動名稱</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">時間</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase hidden sm:table-cell">地點</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">職務</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">狀態</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-gray-200">
+                                    <tr class="hover:bg-gray-50">
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <div class="text-sm font-medium text-gray-900">2025/01/15</div>
+                                            <div class="text-sm text-gray-500">今天</div>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap font-medium">2025 科技論壇</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm">09:00-18:00</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 hidden sm:table-cell">台北國際會議中心</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm">接待員</td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <span class="px-2 py-1 text-xs rounded-full bg-green-100 text-green-800">進行中</span>
+                                        </td>
+                                    </tr>
+                                    <tr class="hover:bg-gray-50">
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <div class="text-sm font-medium text-gray-900">2025/01/18</div>
+                                            <div class="text-sm text-gray-500">週六</div>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap font-medium">品牌發表會</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm">14:00-20:00</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 hidden sm:table-cell">信義區新光三越</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm">活動助理</td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <span class="px-2 py-1 text-xs rounded-full bg-yellow-100 text-yellow-800">待命</span>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 薪資明細 -->
+            <div id="workerSalary" class="worker-content hidden p-6">
+                <div class="max-w-4xl mx-auto animate-in">
+                    <h2 class="text-2xl font-bold text-gray-800 mb-6">薪資明細</h2>
+                    
+                    <!-- 待確認薪資 -->
+                    <div class="bg-yellow-50 border border-yellow-200 rounded-xl p-6 mb-6">
+                        <div class="flex items-center justify-between mb-4">
+                            <h3 class="text-lg font-semibold text-gray-800">待確認薪資</h3>
+                            <span class="bg-yellow-100 text-yellow-800 px-3 py-1 rounded-full text-sm">待確認</span>
+                        </div>
+                        
+                        <div class="bg-white rounded-lg p-4 mb-4">
+                            <div class="space-y-3">
+                                <div class="flex justify-between">
+                                    <span class="text-gray-600">期間：</span>
+                                    <span class="font-medium">2025/01/01 - 2025/01/15</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-gray-600">總工時：</span>
+                                    <span class="font-medium">32 小時</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-gray-600">時薪：</span>
+                                    <span class="font-medium">$200</span>
+                                </div>
+                                <div class="pt-3 border-t flex justify-between">
+                                    <span class="text-gray-800 font-semibold">應發金額：</span>
+                                    <span class="text-2xl font-bold text-green-600">$6,400</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <button onclick="confirmSalary()" class="w-full bg-green-600 text-white py-3 rounded-lg hover:bg-green-700 font-semibold">
+                            確認金額無誤
+                        </button>
+                    </div>
+                    
+                    <!-- 歷史記錄 -->
+                    <div class="bg-white rounded-xl p-6">
+                        <h3 class="text-lg font-semibold text-gray-800 mb-4">歷史薪資記錄</h3>
+                        
+                        <div class="space-y-3">
+                            <div class="p-4 border rounded-lg hover:bg-gray-50">
+                                <div class="flex justify-between items-center">
+                                    <div>
+                                        <p class="font-medium text-gray-800">2024年12月</p>
+                                        <p class="text-sm text-gray-500">45小時 • $9,000</p>
+                                    </div>
+                                    <div class="text-right">
+                                        <span class="bg-green-100 text-green-700 px-2 py-1 rounded-full text-xs">已付款</span>
+                                        <p class="text-xs text-gray-500 mt-1">2025/01/05</p>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="p-4 border rounded-lg hover:bg-gray-50">
+                                <div class="flex justify-between items-center">
+                                    <div>
+                                        <p class="font-medium text-gray-800">2024年11月</p>
+                                        <p class="text-sm text-gray-500">38小時 • $7,600</p>
+                                    </div>
+                                    <div class="text-right">
+                                        <span class="bg-green-100 text-green-700 px-2 py-1 rounded-full text-xs">已付款</span>
+                                        <p class="text-xs text-gray-500 mt-1">2024/12/05</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 彈出視窗們 -->
+        <!-- QR Code 顯示 -->
+        <div id="qrModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+            <div class="bg-white rounded-2xl p-8 max-w-md w-full animate-in">
+                <div class="text-center">
+                    <h3 class="text-xl font-bold text-gray-800 mb-4">活動簽到 QR Code</h3>
+                    <div class="bg-purple-50 rounded-lg p-8 mb-4">
+                        <div class="w-48 h-48 bg-white rounded-lg mx-auto flex items-center justify-center">
+                            <i class="fas fa-qrcode text-purple-600 text-7xl"></i>
+                        </div>
+                    </div>
+                    <p class="text-gray-600 mb-2">2025 科技論壇</p>
+                    <p class="text-sm text-gray-500">QR Code 每30秒自動更新</p>
+                </div>
+                <button onclick="closeModal('qrModal')" class="w-full mt-6 bg-gray-100 text-gray-700 py-3 rounded-lg hover:bg-gray-200">
+                    關閉
+                </button>
+            </div>
+        </div>
+
+        <!-- 薪資確認彈窗 -->
+        <div id="paymentModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+            <div class="bg-white rounded-2xl p-8 max-w-md w-full animate-in">
+                <h3 class="text-xl font-bold text-gray-800 mb-4">確認付款資訊</h3>
+                
+                <div class="bg-gray-50 rounded-lg p-4 mb-4">
+                    <div class="space-y-2">
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">工讀生：</span>
+                            <span class="font-medium">王小明</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">金額：</span>
+                            <span class="font-bold text-green-600">$6,400</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">付款方式：</span>
+                            <select class="border rounded px-2 py-1">
+                                <option>銀行轉帳</option>
+                                <option>現金</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">電子簽名</label>
+                    <div class="border-2 border-dashed border-gray-300 rounded-lg h-32 flex items-center justify-center hover:border-purple-400 cursor-pointer">
+                        <span class="text-gray-400">請在此處簽名</span>
+                    </div>
+                </div>
+                
+                <div class="flex space-x-3">
+                    <button onclick="closeModal('paymentModal')" class="flex-1 bg-gray-100 text-gray-700 py-3 rounded-lg hover:bg-gray-200">
+                        取消
+                    </button>
+                    <button onclick="confirmPayment()" class="flex-1 bg-green-600 text-white py-3 rounded-lg hover:bg-green-700">
+                        確認付款
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 頁面切換
+        function showLogin() {
+            hideAll();
+            document.getElementById('loginPage').classList.remove('hidden');
+        }
+
+        function showDashboard() {
+            hideAll();
+            document.getElementById('adminDashboard').classList.remove('hidden');
+            setAdminTab('overview');
+        }
+
+        function showWorkerView() {
+            hideAll();
+            document.getElementById('workerView').classList.remove('hidden');
+            setWorkerTab('dashboard');
+        }
+
+        function hideAll() {
+            document.getElementById('loginPage').classList.add('hidden');
+            document.getElementById('adminDashboard').classList.add('hidden');
+            document.getElementById('workerView').classList.add('hidden');
+        }
+
+        // 管理員分頁切換
+        function setAdminTab(tab) {
+            // 隱藏所有內容
+            document.querySelectorAll('.admin-content').forEach(el => {
+                el.classList.add('hidden');
+            });
+            
+            // 移除所有標籤的活動狀態
+            document.querySelectorAll('.admin-tab').forEach(el => {
+                el.classList.remove('tab-active');
+            });
+            
+            // 顯示選定的內容
+            document.getElementById(tab + 'Tab').classList.remove('hidden');
+            
+            // 設置活動標籤
+            const buttonId = tab + 'Btn';
+            const button = document.getElementById(buttonId);
+            if (button) {
+                button.classList.add('tab-active');
+            }
+        }
+
+        // 工讀生分頁切換
+        function setWorkerTab(tab) {
+            // 對應關係
+            const tabMap = {
+                'dashboard': 'workerDashboard',
+                'checkin': 'workerCheckin',
+                'schedule': 'workerSchedule',
+                'salary': 'workerSalary'
+            };
+            
+            const buttonMap = {
+                'dashboard': 'dashboardBtn',
+                'checkin': 'checkBtn',
+                'schedule': 'scheduleBtn',
+                'salary': 'salaryViewBtn'
+            };
+            
+            // 隱藏所有內容
+            document.querySelectorAll('.worker-content').forEach(el => {
+                el.classList.add('hidden');
+            });
+            
+            // 移除所有標籤的活動狀態
+            document.querySelectorAll('.worker-tab').forEach(el => {
+                el.classList.remove('tab-active');
+            });
+            
+            // 顯示選定的內容
+            document.getElementById(tabMap[tab]).classList.remove('hidden');
+            
+            // 設置活動標籤
+            const button = document.getElementById(buttonMap[tab]);
+            if (button) {
+                button.classList.add('tab-active');
+            }
+        }
+
+        // 彈窗控制
+        function showQRCode() {
+            document.getElementById('qrModal').classList.remove('hidden');
+        }
+
+        function showPaymentConfirm() {
+            document.getElementById('paymentModal').classList.remove('hidden');
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.add('hidden');
+        }
+
+        // 模擬功能
+        function checkInGPS() {
+            alert('GPS定位成功！\n您已在活動地點範圍內，打卡成功！\n\n打卡時間：' + new Date().toLocaleTimeString());
+        }
+
+        function confirmSalary() {
+            alert('薪資確認成功！\n等待管理員最終確認後即可領取薪資。\n\n系統將發送通知給您的管理員。');
+        }
+
+        function confirmPayment() {
+            closeModal('paymentModal');
+            alert('付款確認成功！\n\n已通知工讀生薪資發放資訊。\n系統將自動產生電子簽收單。');
+        }
+
+        function showCreateEvent() {
+            alert('建立新活動\n\n活動資訊表單將在此開啟...\n• 活動名稱\n• 活動日期與時間\n• 活動地點\n• 所需工讀生人數\n• 工種設定');
+        }
+
+        function showQRScanner() {
+            alert('開啟相機掃描 QR Code...\n\n請將 QR Code 置於畫面中央\n系統將自動識別並打卡');
+        }
+
+        // 初始顯示登入頁面
+        window.onload = function() {
+            showLogin();
+        }
+    </script>
+</body>
+</html>
