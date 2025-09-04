@@ -3,1283 +3,1890 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>戶外LED電視牆專業計算機 - 租賃/採購雙模式</title>
+    <title>WorkForce Pro - 智慧工讀生管理平台</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
+        * { 
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             box-sizing: border-box;
         }
-
+        
+        :root {
+            --primary: #667eea;
+            --secondary: #764ba2;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+        }
+        
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        }
+        
+        .gradient-bg {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            padding: 20px;
         }
-
-        .container {
-            max-width: 1400px;
-            margin: 0 auto;
+        
+        .glass {
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
         }
-
-        .header {
-            text-align: center;
-            color: white;
-            margin-bottom: 30px;
-            animation: fadeInDown 0.6s ease;
+        
+        .card-hover {
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
-
-        .header h1 {
-            font-size: 2.5em;
-            margin-bottom: 10px;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        
+        .card-hover:hover {
+            transform: translateY(-8px) scale(1.02);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.12);
         }
-
-        .header p {
-            font-size: 1.1em;
-            opacity: 0.9;
+        
+        .tab-active {
+            border-bottom: 3px solid var(--primary);
+            color: var(--primary);
         }
-
-        .mode-badge {
-            display: inline-block;
-            background: rgba(255,255,255,0.3);
-            padding: 5px 15px;
-            border-radius: 20px;
-            margin-top: 10px;
-            font-weight: 600;
-        }
-
-        .main-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 25px;
-            margin-bottom: 25px;
-        }
-
-        @media (max-width: 968px) {
-            .main-grid {
-                grid-template-columns: 1fr;
+        
+        @keyframes slideIn {
+            from { 
+                opacity: 0; 
+                transform: translateY(30px) scale(0.95);
+            }
+            to { 
+                opacity: 1; 
+                transform: translateY(0) scale(1);
             }
         }
-
-        .card {
-            background: white;
-            border-radius: 20px;
-            padding: 30px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
-            animation: fadeInUp 0.8s ease;
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        
+        .animate-in { 
+            animation: slideIn 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
         }
-
-        .card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 25px 50px rgba(0,0,0,0.15);
+        
+        @keyframes pulse {
+            0%, 100% { 
+                opacity: 1;
+                transform: scale(1);
+            }
+            50% { 
+                opacity: 0.8;
+                transform: scale(0.98);
+            }
         }
-
-        .card-title {
-            font-size: 1.4em;
-            color: #333;
-            margin-bottom: 20px;
-            padding-bottom: 10px;
-            border-bottom: 3px solid #667eea;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .icon {
-            font-size: 1.2em;
-        }
-
-        .input-group {
-            margin-bottom: 20px;
-        }
-
-        .input-group label {
-            display: block;
-            margin-bottom: 8px;
-            color: #555;
-            font-weight: 500;
-            font-size: 0.95em;
-        }
-
-        .input-wrapper {
-            display: flex;
-            gap: 10px;
-            align-items: center;
-        }
-
-        input[type="number"], select {
-            flex: 1;
-            padding: 12px 15px;
-            border: 2px solid #e0e0e0;
-            border-radius: 10px;
-            font-size: 1em;
-            transition: all 0.3s ease;
-            background: #f8f9fa;
-        }
-
-        input[type="number"]:focus, select:focus {
-            outline: none;
-            border-color: #667eea;
-            background: white;
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-        }
-
-        .unit {
-            color: #777;
-            font-weight: 500;
-            white-space: nowrap;
-        }
-
-        .button-group {
-            display: flex;
-            gap: 10px;
-            margin-top: 20px;
-        }
-
-        .btn {
-            flex: 1;
-            padding: 12px 24px;
-            border: none;
-            border-radius: 10px;
-            font-size: 1em;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .btn-primary {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-        }
-
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
-        }
-
-        .btn-secondary {
-            background: #f0f0f0;
-            color: #555;
-        }
-
-        .btn-secondary:hover {
-            background: #e0e0e0;
-        }
-
-        .result-section {
-            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-            padding: 20px;
-            border-radius: 15px;
-            margin-top: 20px;
-        }
-
-        .result-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 15px;
-        }
-
-        .result-item {
-            background: white;
-            padding: 15px;
-            border-radius: 10px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
-            transition: transform 0.3s ease;
-        }
-
-        .result-item:hover {
-            transform: scale(1.02);
-        }
-
-        .result-label {
-            font-size: 0.85em;
-            color: #777;
-            margin-bottom: 5px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .result-value {
-            font-size: 1.5em;
-            color: #333;
-            font-weight: 700;
-        }
-
-        .result-value.highlight {
-            color: #667eea;
-        }
-
-        .visual-preview {
-            margin-top: 20px;
-            padding: 20px;
-            background: #f8f9fa;
-            border-radius: 15px;
-            text-align: center;
-        }
-
-        .led-grid {
-            display: inline-grid;
-            gap: 2px;
-            padding: 20px;
-            background: #333;
-            border-radius: 10px;
-            margin-top: 15px;
-        }
-
-        .led-panel {
-            width: 20px;
-            height: 20px;
-            background: linear-gradient(135deg, #00ff88 0%, #00cc66 100%);
-            border-radius: 2px;
+        
+        .pulse-animation {
             animation: pulse 2s infinite;
         }
-
-        @keyframes pulse {
-            0%, 100% { opacity: 0.8; }
-            50% { opacity: 1; }
+        
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0) scale(1); }
+            50% { transform: translateY(-10px) scale(1.1); }
         }
-
-        @keyframes fadeInDown {
-            from {
-                opacity: 0;
-                transform: translateY(-30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+        
+        .notification-badge {
+            animation: bounce 2s infinite;
         }
-
+        
+        @keyframes scan {
+            0% { transform: translateY(0); }
+            100% { transform: translateY(200px); }
+        }
+        
+        .qr-scan-line {
+            position: absolute;
+            width: 100%;
+            height: 3px;
+            background: linear-gradient(90deg, transparent, #667eea, transparent);
+            animation: scan 2s linear infinite;
+        }
+        
         @keyframes fadeInUp {
             from {
                 opacity: 0;
-                transform: translateY(30px);
+                transform: translateY(20px);
             }
             to {
                 opacity: 1;
                 transform: translateY(0);
             }
         }
-
-        .info-box {
-            background: #fff3cd;
-            border-left: 4px solid #ffc107;
-            padding: 15px;
-            border-radius: 8px;
-            margin-top: 20px;
+        
+        .fade-in-up {
+            animation: fadeInUp 0.5s ease-out;
         }
-
-        .info-box h4 {
-            color: #856404;
-            margin-bottom: 10px;
-        }
-
-        .info-box ul {
-            list-style: none;
-            color: #856404;
-        }
-
-        .info-box ul li {
-            padding: 5px 0;
-            padding-left: 20px;
+        
+        .stat-card {
             position: relative;
+            overflow: hidden;
         }
-
-        .info-box ul li:before {
-            content: "✓";
+        
+        .stat-card::before {
+            content: '';
             position: absolute;
-            left: 0;
-            color: #28a745;
-            font-weight: bold;
+            top: -50%;
+            right: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent, rgba(255,255,255,0.1), transparent);
+            transform: rotate(45deg);
+            transition: all 0.5s;
         }
-
-        .advanced-settings {
-            background: #f8f9fa;
-            padding: 20px;
-            border-radius: 10px;
-            margin-top: 20px;
+        
+        .stat-card:hover::before {
+            animation: shimmer 0.5s;
         }
-
-        .toggle-advanced {
-            cursor: pointer;
-            color: #667eea;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            gap: 10px;
+        
+        @keyframes shimmer {
+            0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
+            100% { transform: translateX(100%) translateY(100%) rotate(45deg); }
         }
-
-        .toggle-advanced:hover {
-            color: #764ba2;
+        
+        .loader {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid var(--primary);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
         }
-
-        .advanced-content {
-            margin-top: 20px;
-            display: none;
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
-
-        .advanced-content.show {
-            display: block;
-            animation: fadeInUp 0.5s ease;
-        }
-
-        .cost-section {
-            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-            color: white;
-            padding: 25px;
-            border-radius: 15px;
-            margin-top: 20px;
-        }
-
-        .cost-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 15px;
-            margin-top: 15px;
-        }
-
-        .cost-item {
-            background: rgba(255, 255, 255, 0.2);
-            padding: 15px;
-            border-radius: 10px;
-            backdrop-filter: blur(10px);
-        }
-
-        .cost-label {
-            font-size: 0.9em;
-            opacity: 0.9;
-            margin-bottom: 5px;
-        }
-
-        .cost-value {
-            font-size: 1.3em;
-            font-weight: 700;
-        }
-
-        .tooltip {
-            position: relative;
-            display: inline-block;
-            cursor: help;
-        }
-
-        .tooltip .tooltiptext {
-            visibility: hidden;
-            width: 250px;
-            background-color: #555;
-            color: #fff;
-            text-align: center;
-            border-radius: 6px;
-            padding: 10px;
-            position: absolute;
-            z-index: 1;
-            bottom: 125%;
-            left: 50%;
-            margin-left: -125px;
+        
+        .typing-dots span {
+            animation: typing 1.4s infinite;
             opacity: 0;
-            transition: opacity 0.3s;
-            font-size: 0.9em;
-            line-height: 1.4;
         }
-
-        .tooltip:hover .tooltiptext {
-            visibility: visible;
-            opacity: 1;
+        
+        .typing-dots span:nth-child(2) {
+            animation-delay: 0.2s;
         }
-
-        .export-btn {
-            position: fixed;
-            bottom: 30px;
-            right: 30px;
-            padding: 15px 25px;
-            background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
-            color: white;
-            border: none;
-            border-radius: 50px;
-            font-weight: 600;
-            cursor: pointer;
-            box-shadow: 0 10px 30px rgba(67, 233, 123, 0.3);
-            transition: all 0.3s ease;
-            z-index: 1000;
+        
+        .typing-dots span:nth-child(3) {
+            animation-delay: 0.4s;
         }
-
-        .export-btn:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 15px 40px rgba(67, 233, 123, 0.4);
+        
+        @keyframes typing {
+            0%, 60%, 100% { opacity: 0; }
+            30% { opacity: 1; }
         }
-
-        .rental-highlight {
-            background: linear-gradient(135deg, #ffd89b 0%, #19547b 100%);
-            padding: 15px;
+        
+        .success-checkmark {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            display: block;
+            stroke-width: 2;
+            stroke: #10b981;
+            stroke-miterlimit: 10;
+            box-shadow: inset 0px 0px 0px #10b981;
+            animation: fill .4s ease-in-out .4s forwards, scale .3s ease-in-out .9s both;
+            margin: 0 auto;
+        }
+        
+        .success-checkmark__circle {
+            stroke-dasharray: 166;
+            stroke-dashoffset: 166;
+            stroke-width: 2;
+            stroke-miterlimit: 10;
+            stroke: #10b981;
+            fill: none;
+            animation: stroke 0.6s cubic-bezier(0.65, 0, 0.45, 1) forwards;
+        }
+        
+        .success-checkmark__check {
+            transform-origin: 50% 50%;
+            stroke-dasharray: 48;
+            stroke-dashoffset: 48;
+            animation: stroke 0.3s cubic-bezier(0.65, 0, 0.45, 1) 0.8s forwards;
+        }
+        
+        @keyframes stroke {
+            100% { stroke-dashoffset: 0; }
+        }
+        
+        @keyframes scale {
+            0%, 100% { transform: none; }
+            50% { transform: scale3d(1.1, 1.1, 1); }
+        }
+        
+        @keyframes fill {
+            100% { box-shadow: inset 0px 0px 0px 30px #10b981; }
+        }
+        
+        /* 自定義滾動條 */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
             border-radius: 10px;
-            color: white;
-            margin-bottom: 20px;
         }
-
-        .rental-highlight h3 {
-            margin-bottom: 10px;
+        
+        ::-webkit-scrollbar-thumb {
+            background: #888;
+            border-radius: 10px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: #555;
         }
     </style>
 </head>
-<body>
-    <div class="container">
-        <div class="header">
-            <h1>🖥️ 戶外LED電視牆專業計算機</h1>
-            <p>精確計算LED電視牆尺寸、模組數量、線材需求及成本預估</p>
-            <div class="mode-badge" id="modeBadge">採購模式</div>
+<body class="bg-gray-50">
+    <div id="app" class="min-h-screen">
+        <!-- 載入動畫 -->
+        <div id="loadingScreen" class="fixed inset-0 bg-white z-50 flex items-center justify-center">
+            <div class="text-center">
+                <div class="loader mx-auto mb-4"></div>
+                <p class="text-gray-600">系統載入中...</p>
+            </div>
         </div>
 
-        <div class="main-grid">
-            <!-- 輸入區域 -->
-            <div class="card">
-                <h2 class="card-title">
-                    <span class="icon">📐</span>
-                    基本參數設定
-                </h2>
-                
-                <div class="input-group">
-                    <label>業務模式</label>
-                    <select id="businessMode" onchange="switchBusinessMode()">
-                        <option value="purchase">採購模式</option>
-                        <option value="rental">租賃模式</option>
-                    </select>
-                </div>
-
-                <div id="rentalOptions" style="display:none;">
-                    <div class="rental-highlight">
-                        <h3>🎪 租賃專屬設定</h3>
-                        <div class="input-group">
-                            <label>租賃天數</label>
-                            <div class="input-wrapper">
-                                <input type="number" id="rentalDays" value="3" min="1">
-                                <span class="unit">天</span>
-                            </div>
-                        </div>
-                        <div class="input-group">
-                            <label>快速選擇常用規格</label>
-                            <select id="quickSpec" onchange="applyQuickSpec()">
-                                <option value="">-- 自定義 --</option>
-                                <option value="p2.6">P2.6 室內 (500×500mm)</option>
-                                <option value="p3.91">P3.91 室內/戶外 (500×500mm)</option>
-                                <option value="p4.81">P4.81 戶外 (500×500mm)</option>
-                                <option value="p6.25">P6.25 戶外 (500×500mm)</option>
-                                <option value="p2.976">P2.976 室內 (500×500mm)</option>
-                                <option value="p3.91-250">P3.91 室內 (250×250mm)</option>
-                            </select>
-                        </div>
+        <!-- 登入頁面 -->
+        <div id="loginPage" class="gradient-bg min-h-screen flex items-center justify-center p-4 hidden">
+            <div class="glass rounded-2xl p-8 w-full max-w-md animate-in">
+                <div class="text-center mb-8">
+                    <div class="w-24 h-24 bg-gradient-to-r from-purple-500 to-indigo-600 rounded-full mx-auto mb-4 flex items-center justify-center shadow-2xl">
+                        <i class="fas fa-users-gear text-white text-4xl"></i>
+                    </div>
+                    <h1 class="text-3xl font-bold text-gray-800">WorkForce Pro</h1>
+                    <p class="text-gray-600 mt-2">智慧工讀生管理平台</p>
+                    <div class="flex justify-center space-x-2 mt-3">
+                        <span class="bg-purple-100 text-purple-700 px-2 py-1 rounded text-xs">多租戶架構</span>
+                        <span class="bg-blue-100 text-blue-700 px-2 py-1 rounded text-xs">即時監控</span>
+                        <span class="bg-green-100 text-green-700 px-2 py-1 rounded text-xs">智慧排班</span>
                     </div>
                 </div>
                 
-                <div class="input-group">
-                    <label>螢幕對角線尺寸</label>
-                    <div class="input-wrapper">
-                        <input type="number" id="screenSize" value="300" min="1" max="9999">
-                        <span class="unit">吋</span>
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">選擇公司</label>
+                        <select id="companySelect" class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 outline-none">
+                            <option value="company1">創意行銷公關公司</option>
+                            <option value="company2">品牌活動策劃有限公司</option>
+                            <option value="company3">數位媒體整合行銷</option>
+                        </select>
                     </div>
-                </div>
-
-                <div class="input-group">
-                    <label>長寬比例</label>
-                    <select id="aspectRatio">
-                        <option value="16:9">16:9 (標準)</option>
-                        <option value="21:9">21:9 (超寬)</option>
-                        <option value="4:3">4:3 (傳統)</option>
-                        <option value="custom">自定義</option>
-                    </select>
-                </div>
-
-                <div id="customRatio" style="display:none;">
-                    <div class="input-group">
-                        <label>自定義比例</label>
-                        <div class="input-wrapper">
-                            <input type="number" id="customWidth" value="16" min="1">
-                            <span class="unit">:</span>
-                            <input type="number" id="customHeight" value="9" min="1">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">電子郵件</label>
+                        <input type="email" id="emailInput" placeholder="admin@company.com" 
+                               class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">密碼</label>
+                        <div class="relative">
+                            <input type="password" id="passwordInput" placeholder="••••••••" 
+                                   class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 outline-none">
+                            <button onclick="togglePassword()" class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500">
+                                <i class="fas fa-eye"></i>
+                            </button>
                         </div>
                     </div>
+                    <div class="flex items-center justify-between">
+                        <label class="flex items-center">
+                            <input type="checkbox" class="mr-2">
+                            <span class="text-sm text-gray-600">記住我</span>
+                        </label>
+                        <a href="#" class="text-sm text-purple-600 hover:text-purple-800">忘記密碼？</a>
+                    </div>
+                    <button onclick="performLogin()" class="w-full bg-gradient-to-r from-purple-600 to-indigo-600 text-white py-3 rounded-lg font-semibold hover:shadow-lg transform hover:scale-105">
+                        <i class="fas fa-sign-in-alt mr-2"></i>登入系統
+                    </button>
                 </div>
-
-                <div class="input-group">
-                    <label>單片LED模組尺寸</label>
-                    <div class="input-wrapper">
-                        <input type="number" id="panelWidth" value="500" min="1">
-                        <span class="unit">mm ×</span>
-                        <input type="number" id="panelHeight" value="500" min="1">
-                        <span class="unit">mm</span>
+                
+                <div class="mt-6 pt-6 border-t border-gray-200">
+                    <p class="text-center text-sm text-gray-600 mb-3">快速體驗</p>
+                    <div class="grid grid-cols-2 gap-3">
+                        <button onclick="quickLogin('admin')" class="bg-white border border-purple-300 text-purple-600 py-2 rounded-lg hover:bg-purple-50">
+                            <i class="fas fa-user-tie mr-1"></i>管理員
+                        </button>
+                        <button onclick="quickLogin('worker')" class="bg-white border border-blue-300 text-blue-600 py-2 rounded-lg hover:bg-blue-50">
+                            <i class="fas fa-user mr-1"></i>工讀生
+                        </button>
                     </div>
                 </div>
+            </div>
+        </div>
 
-                <div class="input-group">
-                    <label>
-                        <span class="tooltip">
-                            像素間距 (Pixel Pitch)
-                            <span class="tooltiptext">像素間距越小，解析度越高，適合近距離觀看。戶外通常使用6-10mm</span>
-                        </span>
-                    </label>
-                    <div class="input-wrapper">
-                        <input type="number" id="pixelPitch" value="8" min="0.1" max="50" step="0.1">
-                        <span class="unit">mm</span>
-                    </div>
-                </div>
-
-                <div class="advanced-settings">
-                    <div class="toggle-advanced" onclick="toggleAdvanced()">
-                        <span>⚙️</span>
-                        <span>進階設定</span>
-                        <span id="advancedArrow">▼</span>
-                    </div>
-                    <div id="advancedContent" class="advanced-content">
-                        <div class="input-group">
-                            <label>單片模組功耗</label>
-                            <div class="input-wrapper">
-                                <input type="number" id="panelPower" value="50" min="1">
-                                <span class="unit">W</span>
+        <!-- 管理員儀表板 -->
+        <div id="adminDashboard" class="hidden">
+            <!-- 導航列 -->
+            <nav class="bg-white shadow-sm border-b sticky top-0 z-40">
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div class="flex justify-between h-16">
+                        <div class="flex items-center">
+                            <div class="flex items-center space-x-8">
+                                <div class="flex items-center cursor-pointer" onclick="showDashboard()">
+                                    <div class="w-10 h-10 bg-gradient-to-r from-purple-500 to-indigo-600 rounded-lg flex items-center justify-center shadow-md">
+                                        <i class="fas fa-layer-group text-white"></i>
+                                    </div>
+                                    <span class="ml-3 text-xl font-bold text-gray-800">WorkForce Pro</span>
+                                </div>
+                                <div class="hidden md:flex space-x-1">
+                                    <button onclick="setAdminTab('overview')" class="admin-tab px-4 py-2 text-gray-700 hover:text-purple-600 font-medium rounded-lg hover:bg-purple-50 tab-active">
+                                        <i class="fas fa-chart-line mr-2"></i>總覽
+                                    </button>
+                                    <button onclick="setAdminTab('events')" class="admin-tab px-4 py-2 text-gray-700 hover:text-purple-600 font-medium rounded-lg hover:bg-purple-50">
+                                        <i class="fas fa-calendar-alt mr-2"></i>活動管理
+                                    </button>
+                                    <button onclick="setAdminTab('workers')" class="admin-tab px-4 py-2 text-gray-700 hover:text-purple-600 font-medium rounded-lg hover:bg-purple-50">
+                                        <i class="fas fa-users mr-2"></i>工讀生
+                                    </button>
+                                    <button onclick="setAdminTab('checkin')" class="admin-tab px-4 py-2 text-gray-700 hover:text-purple-600 font-medium rounded-lg hover:bg-purple-50">
+                                        <i class="fas fa-clipboard-check mr-2"></i>簽到管理
+                                    </button>
+                                    <button onclick="setAdminTab('salary')" class="admin-tab px-4 py-2 text-gray-700 hover:text-purple-600 font-medium rounded-lg hover:bg-purple-50">
+                                        <i class="fas fa-dollar-sign mr-2"></i>薪資結算
+                                    </button>
+                                    <button onclick="setAdminTab('analytics')" class="admin-tab px-4 py-2 text-gray-700 hover:text-purple-600 font-medium rounded-lg hover:bg-purple-50">
+                                        <i class="fas fa-chart-pie mr-2"></i>數據分析
+                                    </button>
+                                </div>
                             </div>
                         </div>
-                        <div class="input-group">
-                            <label>亮度</label>
-                            <div class="input-wrapper">
-                                <input type="number" id="brightness" value="6500" min="1000" max="10000" step="500">
-                                <span class="unit">cd/m²</span>
+                        <div class="flex items-center space-x-4">
+                            <button onclick="toggleSearch()" class="text-gray-600 hover:text-purple-600">
+                                <i class="fas fa-search"></i>
+                            </button>
+                            <div class="relative">
+                                <button onclick="toggleNotifications()" class="text-gray-600 hover:text-purple-600">
+                                    <i class="fas fa-bell"></i>
+                                    <span class="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full notification-badge"></span>
+                                </button>
+                                <div id="notificationDropdown" class="hidden absolute right-0 mt-2 w-80 bg-white rounded-lg shadow-xl">
+                                    <div class="p-4 border-b">
+                                        <h3 class="font-semibold">通知中心</h3>
+                                    </div>
+                                    <div class="max-h-96 overflow-y-auto">
+                                        <div class="p-4 hover:bg-gray-50 border-b">
+                                            <div class="flex items-start">
+                                                <div class="w-2 h-2 bg-blue-500 rounded-full mt-2 mr-3"></div>
+                                                <div class="flex-1">
+                                                    <p class="text-sm font-medium">新工讀生註冊</p>
+                                                    <p class="text-xs text-gray-500">陳小美申請加入團隊</p>
+                                                    <p class="text-xs text-gray-400 mt-1">5分鐘前</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="p-4 hover:bg-gray-50">
+                                            <div class="flex items-start">
+                                                <div class="w-2 h-2 bg-green-500 rounded-full mt-2 mr-3"></div>
+                                                <div class="flex-1">
+                                                    <p class="text-sm font-medium">活動簽到完成</p>
+                                                    <p class="text-xs text-gray-500">科技論壇已有45人完成簽到</p>
+                                                    <p class="text-xs text-gray-400 mt-1">1小時前</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="flex items-center space-x-3 pl-4 border-l">
+                                <div class="text-right hidden sm:block">
+                                    <p class="text-sm font-medium text-gray-700">王經理</p>
+                                    <p class="text-xs text-gray-500">系統管理員</p>
+                                </div>
+                                <div class="relative">
+                                    <button onclick="toggleUserMenu()" class="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center">
+                                        <span class="text-sm font-semibold text-purple-600">王</span>
+                                    </button>
+                                    <div id="userMenu" class="hidden absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-xl">
+                                        <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">
+                                            <i class="fas fa-user mr-2"></i>個人資料
+                                        </a>
+                                        <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">
+                                            <i class="fas fa-cog mr-2"></i>系統設定
+                                        </a>
+                                        <hr class="my-2">
+                                        <button onclick="logout()" class="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50">
+                                            <i class="fas fa-sign-out-alt mr-2"></i>登出
+                                        </button>
+                                    </div>
+                                </div>
                             </div>
                         </div>
-                        <div class="input-group">
-                            <label>刷新率</label>
-                            <div class="input-wrapper">
-                                <select id="refreshRate">
-                                    <option value="1920">1920Hz</option>
-                                    <option value="3840" selected>3840Hz</option>
-                                    <option value="7680">7680Hz</option>
-                                </select>
+                    </div>
+                </div>
+            </nav>
+
+            <!-- 總覽頁面 -->
+            <div id="overviewTab" class="admin-content p-6">
+                <div class="max-w-7xl mx-auto">
+                    <!-- 頁面標題 -->
+                    <div class="mb-6 fade-in-up">
+                        <h2 class="text-3xl font-bold text-gray-800">儀表板總覽</h2>
+                        <p class="text-gray-600 mt-1">即時監控所有活動與工讀生狀態</p>
+                    </div>
+                    
+                    <!-- 統計卡片 -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                        <div class="bg-white rounded-xl p-6 card-hover cursor-pointer stat-card">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-gray-500 text-sm">本月活動</p>
+                                    <p class="text-3xl font-bold text-gray-800 mt-2">
+                                        <span class="counter" data-target="12">0</span>
+                                    </p>
+                                    <p class="text-green-600 text-sm mt-2 flex items-center">
+                                        <i class="fas fa-arrow-up mr-1"></i>20% 較上月
+                                    </p>
+                                </div>
+                                <div class="w-14 h-14 bg-gradient-to-r from-purple-400 to-purple-600 rounded-xl flex items-center justify-center shadow-lg">
+                                    <i class="fas fa-calendar text-white text-xl"></i>
+                                </div>
                             </div>
-                        </div>
-                        <div class="input-group">
-                            <label>控制卡負載能力</label>
-                            <div class="input-wrapper">
-                                <input type="number" id="controlCardCapacity" value="655360" min="1">
-                                <span class="unit">像素</span>
-                            </div>
-                        </div>
-                        <div class="input-group">
-                            <label>接收卡網口數量</label>
-                            <div class="input-wrapper">
-                                <input type="number" id="receiverPorts" value="2" min="1" max="16">
-                                <span class="unit">個</span>
+                            <div class="mt-4 pt-4 border-t">
+                                <div class="flex items-center justify-between text-xs">
+                                    <span class="text-gray-500">進行中</span>
+                                    <span class="font-medium">3 場</span>
+                                </div>
                             </div>
                         </div>
                         
-                        <h4 style="margin-top: 25px; margin-bottom: 15px; color: #667eea; border-top: 2px solid #e0e0e0; padding-top: 20px;">💰 成本參數設定</h4>
-                        
-                        <div id="purchaseCostParams">
-                            <div class="input-group">
-                                <label>LED模組單價</label>
-                                <div class="input-wrapper">
-                                    <input type="number" id="panelUnitPrice" value="2000" min="1">
-                                    <span class="unit">NT$/片</span>
+                        <div class="bg-white rounded-xl p-6 card-hover cursor-pointer stat-card">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-gray-500 text-sm">活躍工讀生</p>
+                                    <p class="text-3xl font-bold text-gray-800 mt-2">
+                                        <span class="counter" data-target="248">0</span>
+                                    </p>
+                                    <p class="text-green-600 text-sm mt-2 flex items-center">
+                                        <i class="fas fa-arrow-up mr-1"></i>15% 較上月
+                                    </p>
+                                </div>
+                                <div class="w-14 h-14 bg-gradient-to-r from-blue-400 to-blue-600 rounded-xl flex items-center justify-center shadow-lg">
+                                    <i class="fas fa-users text-white text-xl"></i>
                                 </div>
                             </div>
-                            <div class="input-group">
-                                <label>發送卡單價</label>
-                                <div class="input-wrapper">
-                                    <input type="number" id="senderCardPrice" value="5000" min="1">
-                                    <span class="unit">NT$/張</span>
-                                </div>
-                            </div>
-                            <div class="input-group">
-                                <label>接收卡單價</label>
-                                <div class="input-wrapper">
-                                    <input type="number" id="receiverCardPrice" value="800" min="1">
-                                    <span class="unit">NT$/張</span>
-                                </div>
-                            </div>
-                            <div class="input-group">
-                                <label>網路線單價</label>
-                                <div class="input-wrapper">
-                                    <input type="number" id="networkCablePrice" value="200" min="1">
-                                    <span class="unit">NT$/條</span>
-                                </div>
-                            </div>
-                            <div class="input-group">
-                                <label>電源線單價</label>
-                                <div class="input-wrapper">
-                                    <input type="number" id="powerCablePrice" value="500" min="1">
-                                    <span class="unit">NT$/條</span>
-                                </div>
-                            </div>
-                            <div class="input-group">
-                                <label>鋼構單價</label>
-                                <div class="input-wrapper">
-                                    <input type="number" id="structurePrice" value="3000" min="1">
-                                    <span class="unit">NT$/m²</span>
-                                </div>
-                            </div>
-                            <div class="input-group">
-                                <label>安裝人工單價</label>
-                                <div class="input-wrapper">
-                                    <input type="number" id="laborPrice" value="1500" min="1">
-                                    <span class="unit">NT$/m²</span>
+                            <div class="mt-4 pt-4 border-t">
+                                <div class="flex items-center justify-between text-xs">
+                                    <span class="text-gray-500">新加入</span>
+                                    <span class="font-medium">28 人</span>
                                 </div>
                             </div>
                         </div>
                         
-                        <div id="rentalCostParams" style="display:none;">
-                            <div class="input-group">
-                                <label>LED模組租金</label>
-                                <div class="input-wrapper">
-                                    <input type="number" id="panelRentalPrice" value="2000" min="1">
-                                    <span class="unit">NT$/片/天</span>
+                        <div class="bg-white rounded-xl p-6 card-hover cursor-pointer stat-card">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-gray-500 text-sm">今日簽到</p>
+                                    <p class="text-3xl font-bold text-gray-800 mt-2">
+                                        <span class="counter" data-target="89">0</span>
+                                    </p>
+                                    <p class="text-blue-600 text-sm mt-2 flex items-center">
+                                        <span class="inline-block w-2 h-2 bg-blue-500 rounded-full mr-2 animate-pulse"></span>
+                                        進行中
+                                    </p>
+                                </div>
+                                <div class="w-14 h-14 bg-gradient-to-r from-green-400 to-green-600 rounded-xl flex items-center justify-center shadow-lg">
+                                    <i class="fas fa-check-circle text-white text-xl"></i>
                                 </div>
                             </div>
-                            <div class="input-group">
-                                <label>運輸費用</label>
-                                <div class="input-wrapper">
-                                    <input type="number" id="transportPrice" value="20000" min="0">
-                                    <span class="unit">NT$ (來回)</span>
+                            <div class="mt-4 pt-4 border-t">
+                                <div class="flex items-center justify-between text-xs">
+                                    <span class="text-gray-500">準時率</span>
+                                    <span class="font-medium">96%</span>
                                 </div>
                             </div>
-                            <div class="input-group">
-                                <label>安裝拆卸費</label>
-                                <div class="input-wrapper">
-                                    <input type="number" id="installPrice" value="500" min="0">
-                                    <span class="unit">NT$/m²</span>
+                        </div>
+                        
+                        <div class="bg-white rounded-xl p-6 card-hover cursor-pointer stat-card">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-gray-500 text-sm">待結薪資</p>
+                                    <p class="text-3xl font-bold text-gray-800 mt-2">
+                                        $<span class="counter" data-target="48500">0</span>
+                                    </p>
+                                    <p class="text-orange-600 text-sm mt-2 flex items-center">
+                                        <i class="fas fa-exclamation-circle mr-1"></i>3 筆待確認
+                                    </p>
+                                </div>
+                                <div class="w-14 h-14 bg-gradient-to-r from-orange-400 to-orange-600 rounded-xl flex items-center justify-center shadow-lg">
+                                    <i class="fas fa-dollar-sign text-white text-xl"></i>
                                 </div>
                             </div>
-                            <div class="input-group">
-                                <label>技術人員費</label>
-                                <div class="input-wrapper">
-                                    <input type="number" id="technicianPrice" value="8000" min="0">
-                                    <span class="unit">NT$/人/天</span>
-                                </div>
-                            </div>
-                            <div class="input-group">
-                                <label>需要技術人員數</label>
-                                <div class="input-wrapper">
-                                    <input type="number" id="technicianCount" value="2" min="0">
-                                    <span class="unit">人</span>
-                                </div>
-                            </div>
-                            <div class="input-group">
-                                <label>設備保險費率</label>
-                                <div class="input-wrapper">
-                                    <input type="number" id="insuranceRate" value="3" min="0" max="100" step="0.1">
-                                    <span class="unit">%</span>
+                            <div class="mt-4 pt-4 border-t">
+                                <div class="flex items-center justify-between text-xs">
+                                    <span class="text-gray-500">本月已付</span>
+                                    <span class="font-medium">$125,600</span>
                                 </div>
                             </div>
                         </div>
                     </div>
-                </div>
 
-                <div class="button-group">
-                    <button class="btn btn-primary" onclick="calculate()">計算</button>
-                    <button class="btn btn-secondary" onclick="reset()">重置</button>
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+                        <!-- 即時活動狀態 -->
+                        <div class="lg:col-span-2 bg-white rounded-xl p-6">
+                            <div class="flex items-center justify-between mb-4">
+                                <h3 class="text-lg font-semibold text-gray-800">今日活動</h3>
+                                <button class="text-purple-600 hover:text-purple-800 text-sm">
+                                    查看全部 <i class="fas fa-arrow-right ml-1"></i>
+                                </button>
+                            </div>
+                            <div class="space-y-3">
+                                <div class="p-4 bg-gradient-to-r from-purple-50 to-indigo-50 rounded-lg border-l-4 border-purple-500">
+                                    <div class="flex items-center justify-between">
+                                        <div>
+                                            <div class="flex items-center space-x-3">
+                                                <h4 class="font-semibold text-gray-800">2025 科技論壇</h4>
+                                                <span class="bg-green-100 text-green-700 px-2 py-1 rounded-full text-xs">
+                                                    <i class="fas fa-circle text-green-500 text-xs mr-1"></i>進行中
+                                                </span>
+                                            </div>
+                                            <p class="text-sm text-gray-600 mt-1">
+                                                <i class="fas fa-map-marker-alt mr-1"></i>台北國際會議中心
+                                                <span class="mx-2">•</span>
+                                                <i class="fas fa-clock mr-1"></i>09:00-18:00
+                                            </p>
+                                        </div>
+                                        <div class="text-right">
+                                            <p class="text-2xl font-bold text-purple-600">45/50</p>
+                                            <p class="text-xs text-gray-500">工讀生</p>
+                                            <div class="w-full bg-gray-200 rounded-full h-2 mt-2">
+                                                <div class="bg-purple-600 h-2 rounded-full" style="width: 90%"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="p-4 bg-gradient-to-r from-blue-50 to-cyan-50 rounded-lg border-l-4 border-blue-500">
+                                    <div class="flex items-center justify-between">
+                                        <div>
+                                            <div class="flex items-center space-x-3">
+                                                <h4 class="font-semibold text-gray-800">品牌發表會</h4>
+                                                <span class="bg-yellow-100 text-yellow-700 px-2 py-1 rounded-full text-xs">
+                                                    <i class="fas fa-circle text-yellow-500 text-xs mr-1"></i>準備中
+                                                </span>
+                                            </div>
+                                            <p class="text-sm text-gray-600 mt-1">
+                                                <i class="fas fa-map-marker-alt mr-1"></i>信義區新光三越
+                                                <span class="mx-2">•</span>
+                                                <i class="fas fa-clock mr-1"></i>14:00-20:00
+                                            </p>
+                                        </div>
+                                        <div class="text-right">
+                                            <p class="text-2xl font-bold text-blue-600">28/30</p>
+                                            <p class="text-xs text-gray-500">工讀生</p>
+                                            <div class="w-full bg-gray-200 rounded-full h-2 mt-2">
+                                                <div class="bg-blue-600 h-2 rounded-full" style="width: 93%"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- 快速操作 -->
+                        <div class="bg-white rounded-xl p-6">
+                            <h3 class="text-lg font-semibold text-gray-800 mb-4">快速操作</h3>
+                            <div class="space-y-3">
+                                <button onclick="showCreateEvent()" class="w-full text-left p-3 rounded-lg border hover:bg-purple-50 hover:border-purple-300 transition">
+                                    <i class="fas fa-plus-circle text-purple-600 mr-2"></i>
+                                    <span class="text-gray-700">建立新活動</span>
+                                </button>
+                                <button onclick="showAddWorker()" class="w-full text-left p-3 rounded-lg border hover:bg-blue-50 hover:border-blue-300 transition">
+                                    <i class="fas fa-user-plus text-blue-600 mr-2"></i>
+                                    <span class="text-gray-700">新增工讀生</span>
+                                </button>
+                                <button onclick="setAdminTab('checkin')" class="w-full text-left p-3 rounded-lg border hover:bg-green-50 hover:border-green-300 transition">
+                                    <i class="fas fa-qrcode text-green-600 mr-2"></i>
+                                    <span class="text-gray-700">產生 QR Code</span>
+                                </button>
+                                <button onclick="exportReport()" class="w-full text-left p-3 rounded-lg border hover:bg-orange-50 hover:border-orange-300 transition">
+                                    <i class="fas fa-download text-orange-600 mr-2"></i>
+                                    <span class="text-gray-700">匯出報表</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 圖表區域 -->
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <div class="bg-white rounded-xl p-6">
+                            <h3 class="text-lg font-semibold text-gray-800 mb-4">本週簽到趨勢</h3>
+                            <canvas id="weeklyChart"></canvas>
+                        </div>
+                        
+                        <div class="bg-white rounded-xl p-6">
+                            <h3 class="text-lg font-semibold text-gray-800 mb-4">打卡方式分析</h3>
+                            <canvas id="methodChart"></canvas>
+                        </div>
+                    </div>
                 </div>
             </div>
 
-            <!-- 結果區域 -->
-            <div class="card">
-                <h2 class="card-title">
-                    <span class="icon">📊</span>
-                    計算結果
-                </h2>
+            <!-- 活動管理頁面 -->
+            <div id="eventsTab" class="admin-content hidden p-6">
+                <div class="max-w-7xl mx-auto">
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6">
+                        <div>
+                            <h2 class="text-3xl font-bold text-gray-800">活動管理</h2>
+                            <p class="text-gray-600 mt-1">管理所有活動與人員配置</p>
+                        </div>
+                        <button onclick="showCreateEvent()" class="mt-4 sm:mt-0 bg-gradient-to-r from-purple-600 to-indigo-600 text-white px-6 py-3 rounded-lg hover:shadow-lg flex items-center">
+                            <i class="fas fa-plus-circle mr-2"></i>建立活動
+                        </button>
+                    </div>
+                    
+                    <!-- 篩選器 -->
+                    <div class="bg-white rounded-xl shadow-sm p-4 mb-6">
+                        <div class="flex flex-col sm:flex-row gap-4">
+                            <div class="flex-1">
+                                <div class="relative">
+                                    <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                                    <input type="text" placeholder="搜尋活動名稱..." 
+                                           class="w-full pl-10 pr-4 py-2 border rounded-lg focus:outline-none focus:border-purple-500">
+                                </div>
+                            </div>
+                            <select class="px-4 py-2 border rounded-lg focus:outline-none focus:border-purple-500">
+                                <option>全部狀態</option>
+                                <option>籌備中</option>
+                                <option>進行中</option>
+                                <option>已結束</option>
+                            </select>
+                            <input type="date" class="px-4 py-2 border rounded-lg focus:outline-none focus:border-purple-500">
+                            <button class="px-6 py-2 bg-purple-100 text-purple-600 rounded-lg hover:bg-purple-200">
+                                <i class="fas fa-filter mr-2"></i>篩選
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- 活動列表 -->
+                    <div class="bg-white rounded-xl shadow-sm overflow-hidden">
+                        <div class="overflow-x-auto">
+                            <table class="w-full">
+                                <thead class="bg-gray-50">
+                                    <tr>
+                                        <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">活動資訊</th>
+                                        <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">時間地點</th>
+                                        <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">人員配置</th>
+                                        <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">狀態</th>
+                                        <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">操作</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-gray-200">
+                                    <tr class="hover:bg-gray-50 cursor-pointer" onclick="showEventDetail()">
+                                        <td class="px-6 py-4">
+                                            <div class="flex items-center">
+                                                <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center mr-4">
+                                                    <i class="fas fa-microphone text-purple-600"></i>
+                                                </div>
+                                                <div>
+                                                    <div class="text-sm font-medium text-gray-900">2025 科技論壇</div>
+                                                    <div class="text-sm text-gray-500">活動編號: EV2025001</div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td class="px-6 py-4">
+                                            <div class="text-sm text-gray-900">2025/01/15</div>
+                                            <div class="text-sm text-gray-500">09:00 - 18:00</div>
+                                            <div class="text-sm text-gray-500">台北國際會議中心</div>
+                                        </td>
+                                        <td class="px-6 py-4">
+                                            <div class="flex items-center">
+                                                <div class="text-center mr-4">
+                                                    <div class="text-2xl font-bold text-purple-600">45</div>
+                                                    <div class="text-xs text-gray-500">已確認</div>
+                                                </div>
+                                                <div class="text-gray-400">/</div>
+                                                <div class="text-center ml-4">
+                                                    <div class="text-2xl font-bold text-gray-400">50</div>
+                                                    <div class="text-xs text-gray-500">需求</div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td class="px-6 py-4">
+                                            <span class="px-3 py-1 text-xs rounded-full bg-green-100 text-green-800 flex items-center inline-flex">
+                                                <span class="w-2 h-2 bg-green-500 rounded-full mr-2"></span>
+                                                進行中
+                                            </span>
+                                        </td>
+                                        <td class="px-6 py-4 text-sm">
+                                            <div class="flex space-x-2">
+                                                <button onclick="event.stopPropagation(); showEventQR()" 
+                                                        class="text-blue-600 hover:text-blue-900 p-2 hover:bg-blue-50 rounded" title="QR Code">
+                                                    <i class="fas fa-qrcode"></i>
+                                                </button>
+                                                <button onclick="event.stopPropagation(); editEvent()" 
+                                                        class="text-purple-600 hover:text-purple-900 p-2 hover:bg-purple-50 rounded" title="編輯">
+                                                    <i class="fas fa-edit"></i>
+                                                </button>
+                                                <button onclick="event.stopPropagation(); duplicateEvent()" 
+                                                        class="text-green-600 hover:text-green-900 p-2 hover:bg-green-50 rounded" title="複製">
+                                                    <i class="fas fa-copy"></i>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr class="hover:bg-gray-50 cursor-pointer">
+                                        <td class="px-6 py-4">
+                                            <div class="flex items-center">
+                                                <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mr-4">
+                                                    <i class="fas fa-shopping-bag text-blue-600"></i>
+                                                </div>
+                                                <div>
+                                                    <div class="text-sm font-medium text-gray-900">品牌發表會</div>
+                                                    <div class="text-sm text-gray-500">活動編號: EV2025002</div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td class="px-6 py-4">
+                                            <div class="text-sm text-gray-900">2025/01/15</div>
+                                            <div class="text-sm text-gray-500">14:00 - 20:00</div>
+                                            <div class="text-sm text-gray-500">信義區新光三越</div>
+                                        </td>
+                                        <td class="px-6 py-4">
+                                            <div class="flex items-center">
+                                                <div class="text-center mr-4">
+                                                    <div class="text-2xl font-bold text-blue-600">28</div>
+                                                    <div class="text-xs text-gray-500">已確認</div>
+                                                </div>
+                                                <div class="text-gray-400">/</div>
+                                                <div class="text-center ml-4">
+                                                    <div class="text-2xl font-bold text-gray-400">30</div>
+                                                    <div class="text-xs text-gray-500">需求</div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td class="px-6 py-4">
+                                            <span class="px-3 py-1 text-xs rounded-full bg-yellow-100 text-yellow-800 flex items-center inline-flex">
+                                                <span class="w-2 h-2 bg-yellow-500 rounded-full mr-2"></span>
+                                                準備中
+                                            </span>
+                                        </td>
+                                        <td class="px-6 py-4 text-sm">
+                                            <div class="flex space-x-2">
+                                                <button onclick="event.stopPropagation(); showEventQR()" 
+                                                        class="text-blue-600 hover:text-blue-900 p-2 hover:bg-blue-50 rounded">
+                                                    <i class="fas fa-qrcode"></i>
+                                                </button>
+                                                <button onclick="event.stopPropagation(); editEvent()" 
+                                                        class="text-purple-600 hover:text-purple-900 p-2 hover:bg-purple-50 rounded">
+                                                    <i class="fas fa-edit"></i>
+                                                </button>
+                                                <button onclick="event.stopPropagation(); duplicateEvent()" 
+                                                        class="text-green-600 hover:text-green-900 p-2 hover:bg-green-50 rounded">
+                                                    <i class="fas fa-copy"></i>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
-                <div id="results" style="display:none;">
-                    <!-- 尺寸結果 -->
-                    <div class="result-section">
-                        <h3 style="margin-bottom: 15px; color: #333;">📏 實際尺寸</h3>
-                        <div class="result-grid">
-                            <div class="result-item">
-                                <div class="result-label">實際寬度</div>
-                                <div class="result-value highlight" id="actualWidth">-</div>
+            <!-- 簽到管理頁面 -->
+            <div id="checkinTab" class="admin-content hidden p-6">
+                <div class="max-w-7xl mx-auto">
+                    <div class="mb-6">
+                        <h2 class="text-3xl font-bold text-gray-800">簽到管理</h2>
+                        <p class="text-gray-600 mt-1">即時監控活動簽到狀況</p>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                        <!-- QR Code 顯示區 -->
+                        <div class="bg-white rounded-xl p-6">
+                            <h3 class="text-lg font-semibold text-gray-800 mb-4">活動 QR Code</h3>
+                            <div class="relative bg-gradient-to-r from-purple-50 to-indigo-50 rounded-lg p-8 mb-4">
+                                <div id="qrCodeDisplay" class="flex justify-center"></div>
+                                <div class="qr-scan-line"></div>
                             </div>
-                            <div class="result-item">
-                                <div class="result-label">實際高度</div>
-                                <div class="result-value highlight" id="actualHeight">-</div>
+                            <div class="text-center mb-4">
+                                <p class="font-medium text-gray-800">2025 科技論壇</p>
+                                <p class="text-sm text-gray-500 mt-1">
+                                    <i class="fas fa-sync-alt mr-1"></i>
+                                    自動更新：<span id="qrCountdown">30</span>秒
+                                </p>
                             </div>
-                            <div class="result-item">
-                                <div class="result-label">總面積</div>
-                                <div class="result-value" id="totalArea">-</div>
+                            <div class="space-y-2">
+                                <button onclick="downloadQR()" class="w-full bg-purple-600 text-white py-2 rounded-lg hover:bg-purple-700">
+                                    <i class="fas fa-download mr-2"></i>下載 QR Code
+                                </button>
+                                <button onclick="shareQR()" class="w-full bg-white border border-purple-300 text-purple-600 py-2 rounded-lg hover:bg-purple-50">
+                                    <i class="fas fa-share-alt mr-2"></i>分享連結
+                                </button>
                             </div>
-                            <div class="result-item">
-                                <div class="result-label">對角線</div>
-                                <div class="result-value" id="diagonal">-</div>
+                        </div>
+                        
+                        <!-- 即時簽到記錄 -->
+                        <div class="lg:col-span-2 bg-white rounded-xl p-6">
+                            <div class="flex justify-between items-center mb-4">
+                                <h3 class="text-lg font-semibold text-gray-800">即時簽到記錄</h3>
+                                <span class="bg-green-100 text-green-700 px-3 py-1 rounded-full text-sm flex items-center">
+                                    <span class="inline-block w-2 h-2 bg-green-500 rounded-full mr-2 animate-pulse"></span>
+                                    即時更新
+                                </span>
+                            </div>
+                            
+                            <div id="checkInList" class="space-y-3 max-h-96 overflow-y-auto">
+                                <!-- 動態載入簽到記錄 -->
+                            </div>
+                            
+                            <!-- 打卡方式統計 -->
+                            <div class="mt-6 pt-6 border-t">
+                                <p class="text-sm font-medium text-gray-700 mb-4">打卡方式統計</p>
+                                <div class="grid grid-cols-3 gap-4">
+                                    <div class="text-center p-4 bg-purple-50 rounded-lg">
+                                        <i class="fas fa-qrcode text-purple-600 text-2xl mb-2"></i>
+                                        <div class="text-2xl font-bold text-purple-600">32</div>
+                                        <div class="text-xs text-gray-500">QR Code</div>
+                                    </div>
+                                    <div class="text-center p-4 bg-blue-50 rounded-lg">
+                                        <i class="fas fa-map-marker-alt text-blue-600 text-2xl mb-2"></i>
+                                        <div class="text-2xl font-bold text-blue-600">28</div>
+                                        <div class="text-xs text-gray-500">GPS 定位</div>
+                                    </div>
+                                    <div class="text-center p-4 bg-green-50 rounded-lg">
+                                        <i class="fas fa-camera text-green-600 text-2xl mb-2"></i>
+                                        <div class="text-2xl font-bold text-green-600">15</div>
+                                        <div class="text-xs text-gray-500">人臉辨識</div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
-
-                    <!-- 模組結果 -->
-                    <div class="result-section">
-                        <h3 style="margin-bottom: 15px; color: #333;">🔲 模組配置</h3>
-                        <div class="result-grid">
-                            <div class="result-item">
-                                <div class="result-label">橫向模組數</div>
-                                <div class="result-value highlight" id="panelsWide">-</div>
-                            </div>
-                            <div class="result-item">
-                                <div class="result-label">縱向模組數</div>
-                                <div class="result-value highlight" id="panelsHigh">-</div>
-                            </div>
-                            <div class="result-item">
-                                <div class="result-label">總模組數</div>
-                                <div class="result-value" id="totalPanels">-</div>
-                            </div>
-                            <div class="result-item">
-                                <div class="result-label">備用模組(5%)</div>
-                                <div class="result-value" id="sparePanels">-</div>
+                    
+                    <!-- 異常打卡警報 -->
+                    <div class="mt-6 bg-red-50 border border-red-200 rounded-xl p-4">
+                        <div class="flex items-start">
+                            <i class="fas fa-exclamation-triangle text-red-600 mr-3 mt-1"></i>
+                            <div class="flex-1">
+                                <h4 class="font-semibold text-red-800">異常打卡偵測</h4>
+                                <p class="text-sm text-red-600 mt-1">發現 2 筆可疑打卡記錄，請確認</p>
+                                <button class="text-sm text-red-700 underline mt-2">查看詳情</button>
                             </div>
                         </div>
                     </div>
+                </div>
+            </div>
 
-                    <!-- 解析度結果 -->
-                    <div class="result-section">
-                        <h3 style="margin-bottom: 15px; color: #333;">🖼️ 解析度與像素</h3>
-                        <div class="result-grid">
-                            <div class="result-item">
-                                <div class="result-label">水平解析度</div>
-                                <div class="result-value" id="horizontalRes">-</div>
+            <!-- 薪資結算頁面 -->
+            <div id="salaryTab" class="admin-content hidden p-6">
+                <div class="max-w-7xl mx-auto">
+                    <div class="flex justify-between items-center mb-6">
+                        <div>
+                            <h2 class="text-3xl font-bold text-gray-800">薪資結算</h2>
+                            <p class="text-gray-600 mt-1">管理工讀生薪資與付款</p>
+                        </div>
+                        <div class="flex space-x-3">
+                            <button onclick="calculateSalary()" class="bg-gradient-to-r from-purple-600 to-indigo-600 text-white px-6 py-3 rounded-lg hover:shadow-lg">
+                                <i class="fas fa-calculator mr-2"></i>計算薪資
+                            </button>
+                            <button onclick="exportSalary()" class="bg-white border border-gray-300 text-gray-700 px-6 py-3 rounded-lg hover:bg-gray-50">
+                                <i class="fas fa-file-excel mr-2"></i>匯出報表
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- 薪資摘要 -->
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+                        <div class="bg-white rounded-lg p-4 border-l-4 border-green-500">
+                            <p class="text-sm text-gray-600">本月應付總額</p>
+                            <p class="text-2xl font-bold text-gray-800 mt-1">$186,400</p>
+                        </div>
+                        <div class="bg-white rounded-lg p-4 border-l-4 border-blue-500">
+                            <p class="text-sm text-gray-600">已確認金額</p>
+                            <p class="text-2xl font-bold text-gray-800 mt-1">$125,600</p>
+                        </div>
+                        <div class="bg-white rounded-lg p-4 border-l-4 border-yellow-500">
+                            <p class="text-sm text-gray-600">待確認金額</p>
+                            <p class="text-2xl font-bold text-gray-800 mt-1">$48,500</p>
+                        </div>
+                        <div class="bg-white rounded-lg p-4 border-l-4 border-purple-500">
+                            <p class="text-sm text-gray-600">已付款金額</p>
+                            <p class="text-2xl font-bold text-gray-800 mt-1">$12,300</p>
+                        </div>
+                    </div>
+                    
+                    <!-- 薪資列表 -->
+                    <div class="bg-white rounded-xl shadow-sm">
+                        <div class="p-4 border-b">
+                            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center space-y-2 sm:space-y-0">
+                                <div class="flex space-x-3">
+                                    <select class="px-4 py-2 border rounded-lg">
+                                        <option>2025年1月</option>
+                                        <option>2024年12月</option>
+                                    </select>
+                                    <select class="px-4 py-2 border rounded-lg">
+                                        <option>全部狀態</option>
+                                        <option>待工讀生確認</option>
+                                        <option>待管理員確認</option>
+                                        <option>已確認</option>
+                                        <option>已付款</option>
+                                    </select>
+                                </div>
+                                <button onclick="batchPayment()" class="text-purple-600 hover:text-purple-800">
+                                    <i class="fas fa-credit-card mr-2"></i>批次付款
+                                </button>
                             </div>
-                            <div class="result-item">
-                                <div class="result-label">垂直解析度</div>
-                                <div class="result-value" id="verticalRes">-</div>
+                        </div>
+                        
+                        <div class="overflow-x-auto">
+                            <table class="w-full">
+                                <thead class="bg-gray-50">
+                                    <tr>
+                                        <th class="px-6 py-3 text-left">
+                                            <input type="checkbox" class="rounded">
+                                        </th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">工讀生</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">期間</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">工時</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">應付金額</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">狀態</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">操作</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-gray-200">
+                                    <tr class="hover:bg-gray-50">
+                                        <td class="px-6 py-4">
+                                            <input type="checkbox" class="rounded">
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <div class="flex items-center">
+                                                <div class="w-10 h-10 bg-gradient-to-r from-purple-400 to-pink-400 rounded-full flex items-center justify-center mr-3">
+                                                    <span class="text-white font-semibold">王</span>
+                                                </div>
+                                                <div>
+                                                    <div class="font-medium text-gray-900">王小明</div>
+                                                    <div class="text-sm text-gray-500">ID: W001</div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <div class="text-sm text-gray-900">2025/01/01 - 01/15</div>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <div class="text-sm font-medium text-gray-900">32 小時</div>
+                                            <div class="text-xs text-gray-500">4 場活動</div>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <div class="text-lg font-bold text-green-600">$6,400</div>
+                                            <div class="text-xs text-gray-500">$200/時</div>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <span class="px-3 py-1 text-xs rounded-full bg-yellow-100 text-yellow-800">
+                                                待工讀生確認
+                                            </span>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm">
+                                            <button onclick="showSalaryDetail()" class="text-purple-600 hover:text-purple-900 mr-3">明細</button>
+                                            <button onclick="confirmSalary()" class="text-green-600 hover:text-green-900">確認</button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 工讀生管理頁面 -->
+            <div id="workersTab" class="admin-content hidden p-6">
+                <div class="max-w-7xl mx-auto">
+                    <div class="flex justify-between items-center mb-6">
+                        <div>
+                            <h2 class="text-3xl font-bold text-gray-800">工讀生管理</h2>
+                            <p class="text-gray-600 mt-1">管理所有工讀生資料與狀態</p>
+                        </div>
+                        <div class="flex space-x-3">
+                            <button onclick="importWorkers()" class="bg-white border border-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-50">
+                                <i class="fas fa-upload mr-2"></i>批次匯入
+                            </button>
+                            <button onclick="showAddWorker()" class="bg-gradient-to-r from-purple-600 to-indigo-600 text-white px-6 py-2 rounded-lg hover:shadow-lg">
+                                <i class="fas fa-user-plus mr-2"></i>新增工讀生
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- 統計摘要 -->
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+                        <div class="bg-gradient-to-r from-purple-500 to-purple-600 text-white rounded-lg p-4">
+                            <p class="text-purple-100">總人數</p>
+                            <p class="text-3xl font-bold mt-2">248</p>
+                        </div>
+                        <div class="bg-gradient-to-r from-green-500 to-green-600 text-white rounded-lg p-4">
+                            <p class="text-green-100">活躍中</p>
+                            <p class="text-3xl font-bold mt-2">186</p>
+                        </div>
+                        <div class="bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-lg p-4">
+                            <p class="text-blue-100">本月新增</p>
+                            <p class="text-3xl font-bold mt-2">28</p>
+                        </div>
+                        <div class="bg-gradient-to-r from-orange-500 to-orange-600 text-white rounded-lg p-4">
+                            <p class="text-orange-100">平均評分</p>
+                            <p class="text-3xl font-bold mt-2">4.8</p>
+                        </div>
+                    </div>
+                    
+                    <!-- 工讀生卡片列表 -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                        <div class="bg-white rounded-xl p-6 card-hover cursor-pointer" onclick="showWorkerProfile()">
+                            <div class="flex items-center justify-between mb-4">
+                                <div class="w-16 h-16 bg-gradient-to-r from-purple-400 to-pink-400 rounded-full flex items-center justify-center">
+                                    <span class="text-white font-bold text-xl">王</span>
+                                </div>
+                                <span class="bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs">活躍</span>
                             </div>
-                            <div class="result-item">
-                                <div class="result-label">總像素數</div>
-                                <div class="result-value highlight" id="totalPixels">-</div>
+                            <h3 class="font-semibold text-gray-800 text-lg">王小明</h3>
+                            <p class="text-sm text-gray-500">接待員 • ID: W001</p>
+                            <div class="mt-4 space-y-2 text-sm">
+                                <div class="flex justify-between">
+                                    <span class="text-gray-500">本月工時</span>
+                                    <span class="font-medium">32小時</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-gray-500">參與活動</span>
+                                    <span class="font-medium">5場</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-gray-500">評分</span>
+                                    <span class="font-medium text-yellow-500">
+                                        <i class="fas fa-star"></i> 4.9
+                                    </span>
+                                </div>
                             </div>
-                            <div class="result-item">
-                                <div class="result-label">像素密度</div>
-                                <div class="result-value" id="pixelDensity">-</div>
+                            <div class="mt-4 pt-4 border-t flex justify-between">
+                                <button onclick="event.stopPropagation(); editWorker()" class="text-purple-600 hover:text-purple-800">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button onclick="event.stopPropagation(); messageWorker()" class="text-blue-600 hover:text-blue-800">
+                                    <i class="fas fa-comment"></i>
+                                </button>
+                                <button onclick="event.stopPropagation(); viewWorkerSchedule()" class="text-green-600 hover:text-green-800">
+                                    <i class="fas fa-calendar"></i>
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-white rounded-xl p-6 card-hover cursor-pointer">
+                            <div class="flex items-center justify-between mb-4">
+                                <div class="w-16 h-16 bg-gradient-to-r from-blue-400 to-cyan-400 rounded-full flex items-center justify-center">
+                                    <span class="text-white font-bold text-xl">李</span>
+                                </div>
+                                <span class="bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs">活躍</span>
+                            </div>
+                            <h3 class="font-semibold text-gray-800 text-lg">李小華</h3>
+                            <p class="text-sm text-gray-500">活動助理 • ID: W002</p>
+                            <div class="mt-4 space-y-2 text-sm">
+                                <div class="flex justify-between">
+                                    <span class="text-gray-500">本月工時</span>
+                                    <span class="font-medium">28小時</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-gray-500">參與活動</span>
+                                    <span class="font-medium">4場</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-gray-500">評分</span>
+                                    <span class="font-medium text-yellow-500">
+                                        <i class="fas fa-star"></i> 4.8
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="mt-4 pt-4 border-t flex justify-between">
+                                <button onclick="event.stopPropagation(); editWorker()" class="text-purple-600 hover:text-purple-800">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button onclick="event.stopPropagation(); messageWorker()" class="text-blue-600 hover:text-blue-800">
+                                    <i class="fas fa-comment"></i>
+                                </button>
+                                <button onclick="event.stopPropagation(); viewWorkerSchedule()" class="text-green-600 hover:text-green-800">
+                                    <i class="fas fa-calendar"></i>
+                                </button>
                             </div>
                         </div>
                     </div>
+                </div>
+            </div>
 
-                    <!-- 線材與電力結果 -->
-                    <div class="result-section">
-                        <h3 style="margin-bottom: 15px; color: #333;">🔌 線材與電力需求</h3>
-                        <div class="result-grid">
-                            <div class="result-item">
-                                <div class="result-label">主網路線數</div>
-                                <div class="result-value highlight" id="networkCables">-</div>
+            <!-- 數據分析頁面 -->
+            <div id="analyticsTab" class="admin-content hidden p-6">
+                <div class="max-w-7xl mx-auto">
+                    <div class="mb-6">
+                        <h2 class="text-3xl font-bold text-gray-800">數據分析</h2>
+                        <p class="text-gray-600 mt-1">深入分析營運數據與趨勢</p>
+                    </div>
+                    
+                    <!-- KPI 指標 -->
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+                        <div class="bg-white rounded-xl p-6">
+                            <div class="flex items-center justify-between mb-4">
+                                <h3 class="text-gray-600">月度收益成長</h3>
+                                <span class="text-green-600 text-sm">
+                                    <i class="fas fa-arrow-up"></i> 23%
+                                </span>
                             </div>
-                            <div class="result-item">
-                                <div class="result-label">電源線數</div>
-                                <div class="result-value highlight" id="powerCables">-</div>
+                            <canvas id="revenueChart"></canvas>
+                        </div>
+                        
+                        <div class="bg-white rounded-xl p-6">
+                            <div class="flex items-center justify-between mb-4">
+                                <h3 class="text-gray-600">工讀生使用率</h3>
+                                <span class="text-blue-600 text-sm">85%</span>
                             </div>
-                            <div class="result-item">
-                                <div class="result-label">總功耗</div>
-                                <div class="result-value" id="totalPower">-</div>
+                            <canvas id="utilizationChart"></canvas>
+                        </div>
+                        
+                        <div class="bg-white rounded-xl p-6">
+                            <div class="flex items-center justify-between mb-4">
+                                <h3 class="text-gray-600">客戶滿意度</h3>
+                                <span class="text-yellow-600 text-sm">4.8/5.0</span>
                             </div>
-                            <div class="result-item">
-                                <div class="result-label">建議電源</div>
-                                <div class="result-value" id="suggestedPower">-</div>
+                            <canvas id="satisfactionChart"></canvas>
+                        </div>
+                    </div>
+                    
+                    <!-- 詳細報表 -->
+                    <div class="bg-white rounded-xl p-6">
+                        <h3 class="text-lg font-semibold text-gray-800 mb-4">營運報表</h3>
+                        <div class="overflow-x-auto">
+                            <table class="w-full">
+                                <thead class="bg-gray-50">
+                                    <tr>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">月份</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">活動數</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">總工時</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">薪資支出</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">效率指標</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-gray-200">
+                                    <tr>
+                                        <td class="px-6 py-4 whitespace-nowrap">2025年1月</td>
+                                        <td class="px-6 py-4 whitespace-nowrap">12</td>
+                                        <td class="px-6 py-4 whitespace-nowrap">1,250</td>
+                                        <td class="px-6 py-4 whitespace-nowrap">$250,000</td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <span class="text-green-600">95%</span>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 工讀生視圖 -->
+        <div id="workerView" class="hidden">
+            <!-- 導航列 -->
+            <nav class="bg-white shadow-sm border-b sticky top-0 z-40">
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div class="flex justify-between h-16">
+                        <div class="flex items-center">
+                            <div class="flex items-center space-x-8">
+                                <div class="flex items-center">
+                                    <div class="w-10 h-10 bg-gradient-to-r from-purple-500 to-indigo-600 rounded-lg flex items-center justify-center">
+                                        <i class="fas fa-user text-white"></i>
+                                    </div>
+                                    <span class="ml-3 text-xl font-bold text-gray-800">我的工作台</span>
+                                </div>
+                                <div class="hidden md:flex space-x-1">
+                                    <button onclick="setWorkerTab('dashboard')" class="worker-tab px-4 py-2 text-gray-700 hover:text-purple-600 font-medium rounded-lg hover:bg-purple-50 tab-active">
+                                        <i class="fas fa-home mr-2"></i>總覽
+                                    </button>
+                                    <button onclick="setWorkerTab('checkin')" class="worker-tab px-4 py-2 text-gray-700 hover:text-purple-600 font-medium rounded-lg hover:bg-purple-50">
+                                        <i class="fas fa-fingerprint mr-2"></i>簽到簽退
+                                    </button>
+                                    <button onclick="setWorkerTab('schedule')" class="worker-tab px-4 py-2 text-gray-700 hover:text-purple-600 font-medium rounded-lg hover:bg-purple-50">
+                                        <i class="fas fa-calendar-check mr-2"></i>我的班表
+                                    </button>
+                                    <button onclick="setWorkerTab('salary')" class="worker-tab px-4 py-2 text-gray-700 hover:text-purple-600 font-medium rounded-lg hover:bg-purple-50">
+                                        <i class="fas fa-money-check-alt mr-2"></i>薪資明細
+                                    </button>
+                                    <button onclick="setWorkerTab('profile')" class="worker-tab px-4 py-2 text-gray-700 hover:text-purple-600 font-medium rounded-lg hover:bg-purple-50">
+                                        <i class="fas fa-user-cog mr-2"></i>個人資料
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flex items-center space-x-4">
+                            <button onclick="toggleWorkerNotifications()" class="text-gray-600 hover:text-purple-600">
+                                <i class="fas fa-bell"></i>
+                                <span class="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full"></span>
+                            </button>
+                            <button onclick="logout()" class="text-gray-500 hover:text-gray-700">
+                                <i class="fas fa-sign-out-alt"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </nav>
+
+            <!-- 工讀生總覽 -->
+            <div id="workerDashboard" class="worker-content p-6">
+                <div class="max-w-6xl mx-auto">
+                    <div class="mb-6">
+                        <h1 class="text-3xl font-bold text-gray-800">嗨，王小明！</h1>
+                        <p class="text-gray-600 mt-1">歡迎回來，以下是您的工作概況</p>
+                    </div>
+                    
+                    <!-- 統計卡片 -->
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+                        <div class="bg-white rounded-xl p-6 card-hover">
+                            <div class="flex items-center justify-between mb-4">
+                                <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
+                                    <i class="fas fa-clock text-purple-600 text-xl"></i>
+                                </div>
+                            </div>
+                            <p class="text-2xl font-bold text-gray-800">32 小時</p>
+                            <p class="text-sm text-gray-500 mt-1">本月總工時</p>
+                        </div>
+                        
+                        <div class="bg-white rounded-xl p-6 card-hover">
+                            <div class="flex items-center justify-between mb-4">
+                                <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                                    <i class="fas fa-dollar-sign text-green-600 text-xl"></i>
+                                </div>
+                            </div>
+                            <p class="text-2xl font-bold text-gray-800">$6,400</p>
+                            <p class="text-sm text-gray-500 mt-1">預計薪資</p>
+                        </div>
+                        
+                        <div class="bg-white rounded-xl p-6 card-hover">
+                            <div class="flex items-center justify-between mb-4">
+                                <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                                    <i class="fas fa-calendar text-blue-600 text-xl"></i>
+                                </div>
+                            </div>
+                            <p class="text-2xl font-bold text-gray-800">5 場</p>
+                            <p class="text-sm text-gray-500 mt-1">本月活動</p>
+                        </div>
+                        
+                        <div class="bg-white rounded-xl p-6 card-hover">
+                            <div class="flex items-center justify-between mb-4">
+                                <div class="w-12 h-12 bg-yellow-100 rounded-lg flex items-center justify-center">
+                                    <i class="fas fa-star text-yellow-600 text-xl"></i>
+                                </div>
+                            </div>
+                            <p class="text-2xl font-bold text-gray-800">4.9</p>
+                            <p class="text-sm text-gray-500 mt-1">評分</p>
+                        </div>
+                    </div>
+                    
+                    <!-- 今日活動 -->
+                    <div class="bg-white rounded-xl p-6 mb-6">
+                        <h3 class="text-lg font-semibold text-gray-800 mb-4">今日活動</h3>
+                        <div class="bg-gradient-to-r from-purple-50 to-indigo-50 rounded-lg p-6">
+                            <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between space-y-4 sm:space-y-0">
+                                <div>
+                                    <h4 class="font-semibold text-gray-800 text-xl">2025 科技論壇</h4>
+                                    <p class="text-gray-600 mt-2">
+                                        <i class="fas fa-map-marker-alt mr-2"></i>台北國際會議中心 3樓
+                                    </p>
+                                    <div class="mt-3 space-y-1">
+                                        <p class="text-sm text-gray-600">
+                                            <i class="fas fa-clock mr-2"></i>工作時間：09:00 - 18:00
+                                        </p>
+                                        <p class="text-sm text-gray-600">
+                                            <i class="fas fa-user-tag mr-2"></i>職務：接待員
+                                        </p>
+                                        <p class="text-sm text-gray-600">
+                                            <i class="fas fa-dollar-sign mr-2"></i>時薪：$200
+                                        </p>
+                                    </div>
+                                </div>
+                                <button onclick="setWorkerTab('checkin')" class="bg-gradient-to-r from-purple-600 to-indigo-600 text-white px-8 py-3 rounded-lg hover:shadow-lg transform hover:scale-105">
+                                    <i class="fas fa-fingerprint mr-2"></i>前往簽到
+                                </button>
                             </div>
                         </div>
                     </div>
-
-                    <!-- 控制系統 -->
-                    <div class="result-section">
-                        <h3 style="margin-bottom: 15px; color: #333;">🎮 控制系統</h3>
-                        <div class="result-grid">
-                            <div class="result-item">
-                                <div class="result-label">發送卡數量</div>
-                                <div class="result-value" id="senderCards">-</div>
-                            </div>
-                            <div class="result-item">
-                                <div class="result-label">接收卡數量</div>
-                                <div class="result-value" id="receiverCards">-</div>
-                            </div>
-                            <div class="result-item">
-                                <div class="result-label">視頻處理器</div>
-                                <div class="result-value" id="videoProcessor">-</div>
-                            </div>
-                            <div class="result-item">
-                                <div class="result-label">控制電腦</div>
-                                <div class="result-value" id="controlPC">-</div>
+                    
+                    <!-- 近期活動 -->
+                    <div class="bg-white rounded-xl p-6">
+                        <h3 class="text-lg font-semibold text-gray-800 mb-4">近期活動</h3>
+                        <div class="space-y-3">
+                            <div class="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50">
+                                <div>
+                                    <p class="font-medium text-gray-800">品牌發表會</p>
+                                    <p class="text-sm text-gray-500">2025/01/18 • 14:00-20:00</p>
+                                </div>
+                                <span class="bg-yellow-100 text-yellow-700 px-3 py-1 rounded-full text-xs">待命</span>
                             </div>
                         </div>
                     </div>
+                </div>
+            </div>
 
-                    <!-- 成本估算 -->
-                    <div class="cost-section">
-                        <h3 style="margin-bottom: 15px;">💰 成本估算 (參考)</h3>
-                        <div class="cost-grid">
-                            <div class="cost-item">
-                                <div class="cost-label" id="cost-label-1">LED模組</div>
-                                <div class="cost-value" id="panelCost">-</div>
-                            </div>
-                            <div class="cost-item">
-                                <div class="cost-label" id="cost-label-2">控制系統</div>
-                                <div class="cost-value" id="controlCost">-</div>
-                            </div>
-                            <div class="cost-item">
-                                <div class="cost-label" id="cost-label-3">線材配件</div>
-                                <div class="cost-value" id="cableCost">-</div>
-                            </div>
-                            <div class="cost-item">
-                                <div class="cost-label" id="cost-label-4">安裝結構</div>
-                                <div class="cost-value" id="structureCost">-</div>
-                            </div>
-                            <div class="cost-item">
-                                <div class="cost-label" id="cost-label-5">人工安裝</div>
-                                <div class="cost-value" id="laborCost">-</div>
-                            </div>
-                            <div class="cost-item">
-                                <div class="cost-label">總計估算</div>
-                                <div class="cost-value" id="totalCost" style="font-size: 1.5em;">-</div>
-                            </div>
+            <!-- 簽到簽退頁面 -->
+            <div id="workerCheckin" class="worker-content hidden p-6">
+                <div class="max-w-4xl mx-auto">
+                    <h2 class="text-3xl font-bold text-gray-800 mb-6">簽到簽退</h2>
+                    
+                    <div class="bg-white rounded-xl p-6 mb-6">
+                        <h3 class="text-lg font-semibold text-gray-800 mb-4">選擇打卡方式</h3>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <button onclick="showQRScanner()" class="p-6 border-2 border-purple-200 rounded-lg hover:border-purple-500 hover:bg-purple-50 transition group">
+                                <i class="fas fa-qrcode text-purple-600 text-4xl mb-3 group-hover:scale-110 transition"></i>
+                                <p class="font-semibold text-gray-800">QR Code 掃描</p>
+                                <p class="text-sm text-gray-500 mt-1">掃描活動QR Code</p>
+                            </button>
+                            
+                            <button onclick="checkInGPS()" class="p-6 border-2 border-blue-200 rounded-lg hover:border-blue-500 hover:bg-blue-50 transition group">
+                                <i class="fas fa-map-marker-alt text-blue-600 text-4xl mb-3 group-hover:scale-110 transition"></i>
+                                <p class="font-semibold text-gray-800">GPS 定位</p>
+                                <p class="text-sm text-gray-500 mt-1">確認位置打卡</p>
+                            </button>
+                            
+                            <button onclick="checkInFace()" class="p-6 border-2 border-green-200 rounded-lg hover:border-green-500 hover:bg-green-50 transition group">
+                                <i class="fas fa-camera text-green-600 text-4xl mb-3 group-hover:scale-110 transition"></i>
+                                <p class="font-semibold text-gray-800">人臉辨識</p>
+                                <p class="text-sm text-gray-500 mt-1">拍照驗證身份</p>
+                            </button>
                         </div>
                     </div>
-
-                    <!-- 視覺預覽 -->
-                    <div class="visual-preview">
-                        <h3 style="margin-bottom: 10px; color: #333;">🎨 模組排列預覽</h3>
-                        <div id="ledGridPreview"></div>
-                        <p style="margin-top: 15px; color: #666; font-size: 0.9em;">
-                            每個方塊代表一個LED模組
-                        </p>
+                    
+                    <!-- 今日打卡記錄 -->
+                    <div class="bg-white rounded-xl p-6">
+                        <h3 class="text-lg font-semibold text-gray-800 mb-4">今日打卡記錄</h3>
+                        <div id="myCheckInList" class="space-y-3">
+                            <!-- 動態載入打卡記錄 -->
+                        </div>
                     </div>
+                </div>
+            </div>
 
-                    <!-- 建議資訊 -->
-                    <div class="info-box">
-                        <h4>💡 專業建議</h4>
-                        <ul id="suggestions">
-                            <!-- 動態生成建議 -->
-                        </ul>
+            <!-- 其他工讀生頁面內容... -->
+        </div>
+
+        <!-- 彈出視窗們 -->
+        <!-- QR Code 掃描器 -->
+        <div id="qrScannerModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+            <div class="bg-white rounded-2xl p-8 max-w-md w-full animate-in">
+                <h3 class="text-xl font-bold text-gray-800 mb-4">掃描 QR Code</h3>
+                <div class="relative bg-gray-900 rounded-lg h-64 flex items-center justify-center mb-4">
+                    <div class="text-center text-white">
+                        <i class="fas fa-camera text-4xl mb-2"></i>
+                        <p>請將 QR Code 對準鏡頭</p>
+                        <div class="qr-scan-line"></div>
                     </div>
+                </div>
+                <button onclick="simulateQRScan()" class="w-full bg-purple-600 text-white py-3 rounded-lg hover:bg-purple-700 mb-2">
+                    模擬掃描成功
+                </button>
+                <button onclick="closeModal('qrScannerModal')" class="w-full bg-gray-100 text-gray-700 py-3 rounded-lg hover:bg-gray-200">
+                    取消
+                </button>
+            </div>
+        </div>
+
+        <!-- 成功提示 -->
+        <div id="successModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+            <div class="bg-white rounded-2xl p-8 max-w-sm w-full animate-in text-center">
+                <svg class="success-checkmark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52">
+                    <circle class="success-checkmark__circle" cx="26" cy="26" r="25" fill="none"/>
+                    <path class="success-checkmark__check" fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8"/>
+                </svg>
+                <h3 class="text-xl font-bold text-gray-800 mt-4">操作成功！</h3>
+                <p id="successMessage" class="text-gray-600 mt-2">操作已完成</p>
+                <button onclick="closeModal('successModal')" class="mt-4 bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700">
+                    確定
+                </button>
+            </div>
+        </div>
+
+        <!-- 建立活動彈窗 -->
+        <div id="createEventModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+            <div class="bg-white rounded-2xl p-8 max-w-2xl w-full animate-in max-h-[90vh] overflow-y-auto">
+                <h3 class="text-2xl font-bold text-gray-800 mb-6">建立新活動</h3>
+                
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">活動名稱</label>
+                        <input type="text" placeholder="例：2025春季產品發表會" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:border-purple-500">
+                    </div>
+                    
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">活動日期</label>
+                            <input type="date" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:border-purple-500">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">活動時間</label>
+                            <input type="time" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:border-purple-500">
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">活動地點</label>
+                        <input type="text" placeholder="例：台北信義區" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:border-purple-500">
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">所需人數</label>
+                        <input type="number" placeholder="50" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:border-purple-500">
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">工種需求</label>
+                        <div class="grid grid-cols-2 gap-2">
+                            <label class="flex items-center p-2 border rounded">
+                                <input type="checkbox" class="mr-2">
+                                <span>接待員</span>
+                            </label>
+                            <label class="flex items-center p-2 border rounded">
+                                <input type="checkbox" class="mr-2">
+                                <span>活動助理</span>
+                            </label>
+                            <label class="flex items-center p-2 border rounded">
+                                <input type="checkbox" class="mr-2">
+                                <span>攝影助理</span>
+                            </label>
+                            <label class="flex items-center p-2 border rounded">
+                                <input type="checkbox" class="mr-2">
+                                <span>場地支援</span>
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">活動說明</label>
+                        <textarea rows="3" placeholder="請輸入活動詳細說明..." class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:border-purple-500"></textarea>
+                    </div>
+                </div>
+                
+                <div class="flex space-x-3 mt-6">
+                    <button onclick="closeModal('createEventModal')" class="flex-1 bg-gray-100 text-gray-700 py-3 rounded-lg hover:bg-gray-200">
+                        取消
+                    </button>
+                    <button onclick="saveEvent()" class="flex-1 bg-gradient-to-r from-purple-600 to-indigo-600 text-white py-3 rounded-lg hover:shadow-lg">
+                        建立活動
+                    </button>
                 </div>
             </div>
         </div>
     </div>
 
-    <button class="export-btn" onclick="exportResults()">📥 匯出報告</button>
-
     <script>
-        // 切換業務模式
-        function switchBusinessMode() {
-            const mode = document.getElementById('businessMode').value;
-            const rentalOptions = document.getElementById('rentalOptions');
-            const purchaseCostParams = document.getElementById('purchaseCostParams');
-            const rentalCostParams = document.getElementById('rentalCostParams');
-            const modeBadge = document.getElementById('modeBadge');
+        // 全域變數
+        let currentUser = null;
+        let qrTimer = null;
+        let qrCountdown = 30;
+        
+        // 初始化
+        window.onload = function() {
+            setTimeout(() => {
+                document.getElementById('loadingScreen').style.display = 'none';
+                document.getElementById('loginPage').classList.remove('hidden');
+            }, 1000);
             
-            if (mode === 'rental') {
-                rentalOptions.style.display = 'block';
-                if (purchaseCostParams) purchaseCostParams.style.display = 'none';
-                if (rentalCostParams) rentalCostParams.style.display = 'block';
-                modeBadge.textContent = '租賃模式';
-                modeBadge.style.background = 'rgba(255, 216, 155, 0.5)';
-            } else {
-                rentalOptions.style.display = 'none';
-                if (purchaseCostParams) purchaseCostParams.style.display = 'block';
-                if (rentalCostParams) rentalCostParams.style.display = 'none';
-                modeBadge.textContent = '採購模式';
-                modeBadge.style.background = 'rgba(255, 255, 255, 0.3)';
-            }
+            // 初始化圖表
+            initCharts();
         }
-
-        // 套用快速規格
-        function applyQuickSpec() {
-            const spec = document.getElementById('quickSpec').value;
-            const specs = {
-                'p2.6': { pitch: 2.6, width: 500, height: 500 },
-                'p3.91': { pitch: 3.91, width: 500, height: 500 },
-                'p4.81': { pitch: 4.81, width: 500, height: 500 },
-                'p6.25': { pitch: 6.25, width: 500, height: 500 },
-                'p2.976': { pitch: 2.976, width: 500, height: 500 },
-                'p3.91-250': { pitch: 3.91, width: 250, height: 250 }
-            };
+        
+        // 登入功能
+        function performLogin() {
+            const email = document.getElementById('emailInput').value;
+            const password = document.getElementById('passwordInput').value;
             
-            if (spec && specs[spec]) {
-                document.getElementById('pixelPitch').value = specs[spec].pitch;
-                document.getElementById('panelWidth').value = specs[spec].width;
-                document.getElementById('panelHeight').value = specs[spec].height;
-            }
-        }
-
-        // 切換進階設定
-        function toggleAdvanced() {
-            const content = document.getElementById('advancedContent');
-            const arrow = document.getElementById('advancedArrow');
-            
-            if (content.classList.contains('show')) {
-                content.classList.remove('show');
-                arrow.textContent = '▼';
-            } else {
-                content.classList.add('show');
-                arrow.textContent = '▲';
-            }
-        }
-
-        // 監聽長寬比選擇
-        document.getElementById('aspectRatio').addEventListener('change', function() {
-            const customRatio = document.getElementById('customRatio');
-            if (this.value === 'custom') {
-                customRatio.style.display = 'block';
-            } else {
-                customRatio.style.display = 'none';
-            }
-        });
-
-        // 計算函數
-        function calculate() {
-            // 獲取輸入值
-            const screenSize = parseFloat(document.getElementById('screenSize').value);
-            const aspectRatioSelect = document.getElementById('aspectRatio').value;
-            const panelWidth = parseFloat(document.getElementById('panelWidth').value);
-            const panelHeight = parseFloat(document.getElementById('panelHeight').value);
-            const pixelPitch = parseFloat(document.getElementById('pixelPitch').value);
-            const panelPower = parseFloat(document.getElementById('panelPower').value);
-            const brightness = parseFloat(document.getElementById('brightness').value);
-            const refreshRate = parseFloat(document.getElementById('refreshRate').value);
-            const controlCardCapacity = parseFloat(document.getElementById('controlCardCapacity').value);
-            const receiverPorts = parseFloat(document.getElementById('receiverPorts').value);
-            const businessMode = document.getElementById('businessMode').value;
-
-            // 計算長寬比
-            let ratioWidth, ratioHeight;
-            if (aspectRatioSelect === 'custom') {
-                ratioWidth = parseFloat(document.getElementById('customWidth').value);
-                ratioHeight = parseFloat(document.getElementById('customHeight').value);
-            } else {
-                const ratios = {
-                    '16:9': [16, 9],
-                    '21:9': [21, 9],
-                    '4:3': [4, 3]
-                };
-                [ratioWidth, ratioHeight] = ratios[aspectRatioSelect];
-            }
-
-            // 計算實際尺寸（英寸轉毫米）
-            const inchToMm = 25.4;
-            const diagonal = screenSize * inchToMm;
-            const ratio = ratioWidth / ratioHeight;
-            const height = Math.sqrt(diagonal * diagonal / (1 + ratio * ratio));
-            const width = height * ratio;
-
-            // 計算需要的模組數量
-            const panelsWide = Math.ceil(width / panelWidth);
-            const panelsHigh = Math.ceil(height / panelHeight);
-            const totalPanels = panelsWide * panelsHigh;
-            const sparePanels = Math.ceil(totalPanels * 0.05);
-
-            // 計算實際尺寸
-            const actualWidth = panelsWide * panelWidth;
-            const actualHeight = panelsHigh * panelHeight;
-            const totalArea = (actualWidth * actualHeight) / 1000000; // 平方米
-
-            // 計算解析度
-            const horizontalRes = Math.floor(actualWidth / pixelPitch);
-            const verticalRes = Math.floor(actualHeight / pixelPitch);
-            const totalPixels = horizontalRes * verticalRes;
-            const pixelDensity = Math.round(totalPixels / totalArea);
-
-            // 計算線材需求
-            const networkCables = Math.ceil(totalPixels / controlCardCapacity);
-            const powerCables = Math.ceil(totalPanels / 4); // 假設每4個模組一條電源線
-            const totalPower = totalPanels * panelPower;
-            const suggestedPower = Math.ceil(totalPower * 1.3 / 1000) * 1000; // 留30%餘量
-
-            // 計算控制系統
-            const senderCards = networkCables;
-            const receiverCards = Math.ceil(totalPanels / receiverPorts);
-            const videoProcessor = totalPixels > 2073600 ? "4K處理器" : "2K處理器";
-            const controlPC = totalPixels > 8294400 ? "高配工作站" : "標準控制電腦";
-
-            // 成本估算
-            let panelCost, controlCost, cableCost, structureCost, laborCost, totalCost;
-            
-            if (businessMode === 'rental') {
-                // 租賃模式計算
-                const rentalDays = parseFloat(document.getElementById('rentalDays').value) || 3;
-                const panelRentalPrice = parseFloat(document.getElementById('panelRentalPrice').value) || 2000;
-                const transportPrice = parseFloat(document.getElementById('transportPrice').value) || 20000;
-                const installPrice = parseFloat(document.getElementById('installPrice').value) || 500;
-                const technicianPrice = parseFloat(document.getElementById('technicianPrice').value) || 8000;
-                const technicianCount = parseFloat(document.getElementById('technicianCount').value) || 2;
-                const insuranceRate = parseFloat(document.getElementById('insuranceRate').value) || 3;
-                
-                panelCost = totalPanels * panelRentalPrice * rentalDays;
-                const transportCost = transportPrice;
-                const installationCost = totalArea * installPrice * 2; // 安裝+拆卸
-                const technicianCost = technicianPrice * technicianCount * rentalDays;
-                const insuranceCost = panelCost * (insuranceRate / 100);
-                
-                // 租賃模式下的顯示調整
-                document.getElementById('panelCost').textContent = `NT$ ${panelCost.toLocaleString()}`;
-                document.getElementById('controlCost').textContent = `NT$ ${transportCost.toLocaleString()}`;
-                document.getElementById('cableCost').textContent = `NT$ ${installationCost.toLocaleString()}`;
-                document.getElementById('structureCost').textContent = `NT$ ${technicianCost.toLocaleString()}`;
-                document.getElementById('laborCost').textContent = `NT$ ${insuranceCost.toLocaleString()}`;
-                
-                // 更新標籤文字
-                document.getElementById('cost-label-1').textContent = `租金(${rentalDays}天)`;
-                document.getElementById('cost-label-2').textContent = '運輸費用';
-                document.getElementById('cost-label-3').textContent = '安裝拆卸';
-                document.getElementById('cost-label-4').textContent = '技術人員';
-                document.getElementById('cost-label-5').textContent = '設備保險';
-                
-                totalCost = panelCost + transportCost + installationCost + technicianCost + insuranceCost;
-            } else {
-                // 採購模式計算
-                const panelUnitPrice = parseFloat(document.getElementById('panelUnitPrice').value);
-                const senderCardPrice = parseFloat(document.getElementById('senderCardPrice').value);
-                const receiverCardPrice = parseFloat(document.getElementById('receiverCardPrice').value);
-                const networkCablePrice = parseFloat(document.getElementById('networkCablePrice').value);
-                const powerCablePrice = parseFloat(document.getElementById('powerCablePrice').value);
-                const structurePrice = parseFloat(document.getElementById('structurePrice').value);
-                const laborPrice = parseFloat(document.getElementById('laborPrice').value);
-                
-                panelCost = totalPanels * panelUnitPrice;
-                controlCost = senderCards * senderCardPrice + receiverCards * receiverCardPrice;
-                cableCost = (networkCables * networkCablePrice + powerCables * powerCablePrice);
-                structureCost = totalArea * structurePrice;
-                laborCost = totalArea * laborPrice;
-                totalCost = panelCost + controlCost + cableCost + structureCost + laborCost;
-                
-                // 恢復原始標籤
-                document.getElementById('cost-label-1').textContent = 'LED模組';
-                document.getElementById('cost-label-2').textContent = '控制系統';
-                document.getElementById('cost-label-3').textContent = '線材配件';
-                document.getElementById('cost-label-4').textContent = '安裝結構';
-                document.getElementById('cost-label-5').textContent = '人工安裝';
-                
-                document.getElementById('panelCost').textContent = `NT$ ${panelCost.toLocaleString()}`;
-                document.getElementById('controlCost').textContent = `NT$ ${controlCost.toLocaleString()}`;
-                document.getElementById('cableCost').textContent = `NT$ ${cableCost.toLocaleString()}`;
-                document.getElementById('structureCost').textContent = `NT$ ${structureCost.toLocaleString()}`;
-                document.getElementById('laborCost').textContent = `NT$ ${laborCost.toLocaleString()}`;
-            }
-
-            // 更新顯示結果
-            document.getElementById('actualWidth').textContent = `${(actualWidth/1000).toFixed(2)} m`;
-            document.getElementById('actualHeight').textContent = `${(actualHeight/1000).toFixed(2)} m`;
-            document.getElementById('totalArea').textContent = `${totalArea.toFixed(2)} m²`;
-            document.getElementById('diagonal').textContent = `${(Math.sqrt(actualWidth*actualWidth + actualHeight*actualHeight)/inchToMm).toFixed(1)} 吋`;
-
-            document.getElementById('panelsWide').textContent = panelsWide;
-            document.getElementById('panelsHigh').textContent = panelsHigh;
-            document.getElementById('totalPanels').textContent = totalPanels;
-            document.getElementById('sparePanels').textContent = sparePanels;
-
-            document.getElementById('horizontalRes').textContent = `${horizontalRes} px`;
-            document.getElementById('verticalRes').textContent = `${verticalRes} px`;
-            document.getElementById('totalPixels').textContent = totalPixels.toLocaleString();
-            document.getElementById('pixelDensity').textContent = `${pixelDensity.toLocaleString()} px/m²`;
-
-            document.getElementById('networkCables').textContent = `${networkCables} 條`;
-            document.getElementById('powerCables').textContent = `${powerCables} 條`;
-            document.getElementById('totalPower').textContent = `${(totalPower/1000).toFixed(1)} kW`;
-            document.getElementById('suggestedPower').textContent = `${(suggestedPower/1000).toFixed(0)} kW`;
-
-            document.getElementById('senderCards').textContent = senderCards;
-            document.getElementById('receiverCards').textContent = receiverCards;
-            document.getElementById('videoProcessor').textContent = videoProcessor;
-            document.getElementById('controlPC').textContent = controlPC;
-
-            document.getElementById('totalCost').textContent = `NT$ ${totalCost.toLocaleString()}`;
-
-            // 生成視覺預覽
-            generateVisualPreview(panelsWide, panelsHigh);
-
-            // 生成建議
-            generateSuggestions(pixelPitch, totalArea, totalPixels, brightness, businessMode);
-
-            // 顯示結果
-            document.getElementById('results').style.display = 'block';
-        }
-
-        // 生成視覺預覽
-        function generateVisualPreview(wide, high) {
-            const preview = document.getElementById('ledGridPreview');
-            const maxDisplay = 20; // 最多顯示20x20
-            const displayWide = Math.min(wide, maxDisplay);
-            const displayHigh = Math.min(high, maxDisplay);
-            
-            let gridHtml = `<div class="led-grid" style="grid-template-columns: repeat(${displayWide}, 1fr);">`;
-            
-            for (let i = 0; i < displayWide * displayHigh; i++) {
-                gridHtml += '<div class="led-panel"></div>';
-            }
-            
-            gridHtml += '</div>';
-            
-            if (wide > maxDisplay || high > maxDisplay) {
-                gridHtml += `<p style="margin-top: 10px; color: #999; font-size: 0.85em;">
-                    (預覽顯示 ${displayWide}×${displayHigh}，實際為 ${wide}×${high})
-                </p>`;
-            }
-            
-            preview.innerHTML = gridHtml;
-        }
-
-        // 生成建議
-        function generateSuggestions(pixelPitch, area, pixels, brightness, mode) {
-            const suggestions = document.getElementById('suggestions');
-            let suggestionList = [];
-
-            // 根據像素間距建議觀看距離
-            const minDistance = pixelPitch * 1;
-            const optimalDistance = pixelPitch * 3;
-            suggestionList.push(`建議觀看距離：${minDistance.toFixed(1)}-${optimalDistance.toFixed(1)}公尺`);
-
-            if (mode === 'rental') {
-                // 租賃模式特定建議
-                suggestionList.push('租賃前請確認場地電源容量是否足夠');
-                suggestionList.push('建議提前進行場地勘察，確認安裝條件');
-                suggestionList.push('活動當天建議安排技術人員現場待命');
-                suggestionList.push('租賃設備建議購買保險，避免意外損失');
-                suggestionList.push('確認運輸車輛可進入場地');
-            } else {
-                // 採購模式建議
-                if (area > 50) {
-                    suggestionList.push('大型顯示屏建議配置UPS不斷電系統');
-                    suggestionList.push('建議安裝環境監測系統（溫度、濕度、亮度感應）');
-                }
-                suggestionList.push('建議每季度進行一次專業維護保養');
-                suggestionList.push('預留5%備用模組以應對故障更換');
-            }
-
-            // 根據解析度建議
-            if (pixels > 2073600) {
-                suggestionList.push('支援4K內容播放，建議使用專業級視頻處理器');
-            }
-
-            // 根據亮度建議
-            if (brightness >= 6000) {
-                suggestionList.push('高亮度設計適合戶外使用，建議加裝自動亮度調節系統');
-            }
-
-            // 更新建議列表
-            suggestions.innerHTML = suggestionList.map(s => `<li>${s}</li>`).join('');
-        }
-
-        // 重置功能
-        function reset() {
-            // 重置基本參數
-            document.getElementById('screenSize').value = 300;
-            document.getElementById('aspectRatio').value = '16:9';
-            document.getElementById('panelWidth').value = 500;
-            document.getElementById('panelHeight').value = 500;
-            document.getElementById('pixelPitch').value = 8;
-            document.getElementById('businessMode').value = 'purchase';
-            
-            // 重置租賃參數
-            if (document.getElementById('rentalDays')) {
-                document.getElementById('rentalDays').value = 3;
-            }
-            
-            // 重置進階參數
-            document.getElementById('panelPower').value = 50;
-            document.getElementById('brightness').value = 6500;
-            document.getElementById('refreshRate').value = '3840';
-            document.getElementById('controlCardCapacity').value = 655360;
-            document.getElementById('receiverPorts').value = 2;
-            
-            // 重置成本參數
-            document.getElementById('panelUnitPrice').value = 2000;
-            document.getElementById('senderCardPrice').value = 5000;
-            document.getElementById('receiverCardPrice').value = 800;
-            document.getElementById('networkCablePrice').value = 200;
-            document.getElementById('powerCablePrice').value = 500;
-            document.getElementById('structurePrice').value = 3000;
-            document.getElementById('laborPrice').value = 1500;
-            
-            // 重置租賃成本參數
-            if (document.getElementById('panelRentalPrice')) {
-                document.getElementById('panelRentalPrice').value = 2000;
-                document.getElementById('transportPrice').value = 20000;
-                document.getElementById('installPrice').value = 500;
-                document.getElementById('technicianPrice').value = 8000;
-                document.getElementById('technicianCount').value = 2;
-                document.getElementById('insuranceRate').value = 3;
-            }
-            
-            // 隱藏結果和自定義比例
-            document.getElementById('results').style.display = 'none';
-            document.getElementById('customRatio').style.display = 'none';
-            document.getElementById('rentalOptions').style.display = 'none';
-            switchBusinessMode();
-        }
-
-        // 匯出報告
-        function exportResults() {
-            if (document.getElementById('results').style.display === 'none') {
-                alert('請先進行計算');
+            if (!email || !password) {
+                showNotification('請輸入帳號密碼', 'error');
                 return;
             }
-
-            const businessMode = document.getElementById('businessMode').value;
-            const modeText = businessMode === 'rental' ? '租賃' : '採購';
             
-            const results = {
-                模式: modeText,
-                尺寸: {
-                    實際寬度: document.getElementById('actualWidth').textContent,
-                    實際高度: document.getElementById('actualHeight').textContent,
-                    總面積: document.getElementById('totalArea').textContent,
-                    對角線: document.getElementById('diagonal').textContent
-                },
-                模組配置: {
-                    橫向模組數: document.getElementById('panelsWide').textContent,
-                    縱向模組數: document.getElementById('panelsHigh').textContent,
-                    總模組數: document.getElementById('totalPanels').textContent,
-                    備用模組: document.getElementById('sparePanels').textContent
-                },
-                解析度: {
-                    水平解析度: document.getElementById('horizontalRes').textContent,
-                    垂直解析度: document.getElementById('verticalRes').textContent,
-                    總像素數: document.getElementById('totalPixels').textContent,
-                    像素密度: document.getElementById('pixelDensity').textContent
-                },
-                線材與電力: {
-                    主網路線數: document.getElementById('networkCables').textContent,
-                    電源線數: document.getElementById('powerCables').textContent,
-                    總功耗: document.getElementById('totalPower').textContent,
-                    建議電源: document.getElementById('suggestedPower').textContent
-                },
-                成本估算: {}
+            // 模擬登入過程
+            showLoadingButton('登入中...');
+            setTimeout(() => {
+                showDashboard();
+            }, 1000);
+        }
+        
+        function quickLogin(type) {
+            showLoadingButton('登入中...');
+            setTimeout(() => {
+                if (type === 'admin') {
+                    showDashboard();
+                } else {
+                    showWorkerView();
+                }
+            }, 500);
+        }
+        
+        function showLoadingButton(text) {
+            // 實作載入動畫
+        }
+        
+        // 頁面切換
+        function showDashboard() {
+            document.getElementById('loginPage').classList.add('hidden');
+            document.getElementById('workerView').classList.add('hidden');
+            document.getElementById('adminDashboard').classList.remove('hidden');
+            setAdminTab('overview');
+            startCounters();
+            startQRTimer();
+        }
+        
+        function showWorkerView() {
+            document.getElementById('loginPage').classList.add('hidden');
+            document.getElementById('adminDashboard').classList.add('hidden');
+            document.getElementById('workerView').classList.remove('hidden');
+            setWorkerTab('dashboard');
+        }
+        
+        function logout() {
+            if (confirm('確定要登出嗎？')) {
+                document.getElementById('adminDashboard').classList.add('hidden');
+                document.getElementById('workerView').classList.add('hidden');
+                document.getElementById('loginPage').classList.remove('hidden');
+                clearInterval(qrTimer);
+            }
+        }
+        
+        // 管理員分頁切換
+        function setAdminTab(tab) {
+            // 隱藏所有內容
+            document.querySelectorAll('.admin-content').forEach(el => {
+                el.classList.add('hidden');
+            });
+            
+            // 移除所有標籤的活動狀態
+            document.querySelectorAll('.admin-tab').forEach(el => {
+                el.classList.remove('tab-active');
+            });
+            
+            // 顯示選定的內容
+            document.getElementById(tab + 'Tab').classList.remove('hidden');
+            
+            // 設置活動標籤
+            const buttons = document.querySelectorAll('.admin-tab');
+            buttons.forEach(button => {
+                if (button.onclick && button.onclick.toString().includes(tab)) {
+                    button.classList.add('tab-active');
+                }
+            });
+        }
+        
+        // 工讀生分頁切換
+        function setWorkerTab(tab) {
+            const tabMap = {
+                'dashboard': 'workerDashboard',
+                'checkin': 'workerCheckin',
+                'schedule': 'workerSchedule',
+                'salary': 'workerSalary',
+                'profile': 'workerProfile'
             };
             
-            // 根據模式導出不同的成本項目
-            if (businessMode === 'rental') {
-                const rentalDays = document.getElementById('rentalDays').value;
-                results.租賃天數 = rentalDays + ' 天';
-                results.成本估算 = {
-                    [`租金(${rentalDays}天)`]: document.getElementById('panelCost').textContent,
-                    運輸費用: document.getElementById('controlCost').textContent,
-                    安裝拆卸: document.getElementById('cableCost').textContent,
-                    技術人員: document.getElementById('structureCost').textContent,
-                    設備保險: document.getElementById('laborCost').textContent,
-                    總計: document.getElementById('totalCost').textContent
-                };
-            } else {
-                results.成本估算 = {
-                    LED模組: document.getElementById('panelCost').textContent,
-                    控制系統: document.getElementById('controlCost').textContent,
-                    線材配件: document.getElementById('cableCost').textContent,
-                    安裝結構: document.getElementById('structureCost').textContent,
-                    人工安裝: document.getElementById('laborCost').textContent,
-                    總計: document.getElementById('totalCost').textContent
-                };
+            // 隱藏所有內容
+            document.querySelectorAll('.worker-content').forEach(el => {
+                el.classList.add('hidden');
+            });
+            
+            // 移除所有標籤的活動狀態
+            document.querySelectorAll('.worker-tab').forEach(el => {
+                el.classList.remove('tab-active');
+            });
+            
+            // 顯示選定的內容
+            const contentId = tabMap[tab];
+            if (contentId && document.getElementById(contentId)) {
+                document.getElementById(contentId).classList.remove('hidden');
             }
-
-            const text = JSON.stringify(results, null, 2);
-            const blob = new Blob([text], { type: 'text/plain' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `LED電視牆${modeText}計算報告_${new Date().toLocaleDateString()}.txt`;
-            a.click();
-            URL.revokeObjectURL(url);
+            
+            // 設置活動標籤
+            const buttons = document.querySelectorAll('.worker-tab');
+            buttons.forEach(button => {
+                if (button.onclick && button.onclick.toString().includes(tab)) {
+                    button.classList.add('tab-active');
+                }
+            });
         }
-
-        // 頁面載入時自動計算一次
-        window.onload = function() {
-            calculate();
-        };
+        
+        // 動態計數器
+        function startCounters() {
+            const counters = document.querySelectorAll('.counter');
+            counters.forEach(counter => {
+                const target = +counter.getAttribute('data-target');
+                const increment = target / 100;
+                let current = 0;
+                
+                const updateCounter = () => {
+                    current += increment;
+                    if (current < target) {
+                        counter.textContent = Math.ceil(current).toLocaleString();
+                        setTimeout(updateCounter, 10);
+                    } else {
+                        counter.textContent = target.toLocaleString();
+                    }
+                };
+                updateCounter();
+            });
+        }
+        
+        // QR Code 功能
+        function generateQRCode() {
+            const qr = qrcode(0, 'M');
+            const data = {
+                eventId: 'EV2025001',
+                timestamp: Date.now(),
+                token: Math.random().toString(36).substr(2, 9)
+            };
+            qr.addData(JSON.stringify(data));
+            qr.make();
+            
+            const qrDisplay = document.getElementById('qrCodeDisplay');
+            if (qrDisplay) {
+                qrDisplay.innerHTML = qr.createImgTag(5);
+            }
+        }
+        
+        function startQRTimer() {
+            generateQRCode();
+            qrTimer = setInterval(() => {
+                qrCountdown--;
+                if (qrCountdown <= 0) {
+                    qrCountdown = 30;
+                    generateQRCode();
+                }
+                const countdownEl = document.getElementById('qrCountdown');
+                if (countdownEl) {
+                    countdownEl.textContent = qrCountdown;
+                }
+            }, 1000);
+        }
+        
+        // 即時簽到記錄
+        function addCheckInRecord() {
+            const checkInList = document.getElementById('checkInList');
+            if (!checkInList) return;
+            
+            const records = [
+                { name: '王小明', type: 'in', method: 'QR Code', time: '09:05:23' },
+                { name: '李小華', type: 'out', method: 'GPS 定位', time: '09:03:45' },
+                { name: '張大偉', type: 'in', method: '人臉辨識', time: '09:02:10' },
+                { name: '陳小美', type: 'in', method: 'QR Code', time: '09:01:30' },
+                { name: '林志成', type: 'out', method: 'GPS 定位', time: '08:59:15' }
+            ];
+            
+            checkInList.innerHTML = records.map(record => `
+                <div class="flex items-center justify-between p-3 ${record.type === 'in' ? 'bg-green-50' : 'bg-blue-50'} rounded-lg fade-in-up">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-10 h-10 ${record.type === 'in' ? 'bg-green-100' : 'bg-blue-100'} rounded-full flex items-center justify-center">
+                            <i class="fas fa-${record.type === 'in' ? 'sign-in-alt' : 'sign-out-alt'} ${record.type === 'in' ? 'text-green-600' : 'text-blue-600'}"></i>
+                        </div>
+                        <div>
+                            <p class="font-medium text-gray-800">${record.name}</p>
+                            <p class="text-sm text-gray-500">${record.type === 'in' ? '簽到' : '簽退'} • ${record.method}</p>
+                        </div>
+                    </div>
+                    <span class="text-sm text-gray-500">${record.time}</span>
+                </div>
+            `).join('');
+        }
+        
+        // 初始化圖表
+        function initCharts() {
+            // 週簽到趨勢圖
+            const weeklyCtx = document.getElementById('weeklyChart');
+            if (weeklyCtx) {
+                new Chart(weeklyCtx.getContext('2d'), {
+                    type: 'line',
+                    data: {
+                        labels: ['週一', '週二', '週三', '週四', '週五', '週六', '週日'],
+                        datasets: [{
+                            label: '簽到人數',
+                            data: [65, 78, 90, 81, 86, 55, 40],
+                            borderColor: 'rgb(102, 126, 234)',
+                            backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                            tension: 0.4
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            legend: { display: false }
+                        }
+                    }
+                });
+            }
+            
+            // 打卡方式分析
+            const methodCtx = document.getElementById('methodChart');
+            if (methodCtx) {
+                new Chart(methodCtx.getContext('2d'), {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['QR Code', 'GPS 定位', '人臉辨識', '手動打卡'],
+                        datasets: [{
+                            data: [45, 30, 20, 5],
+                            backgroundColor: [
+                                'rgba(102, 126, 234, 0.8)',
+                                'rgba(59, 130, 246, 0.8)',
+                                'rgba(16, 185, 129, 0.8)',
+                                'rgba(245, 158, 11, 0.8)'
+                            ]
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            legend: { position: 'bottom' }
+                        }
+                    }
+                });
+            }
+        }
+        
+        // 彈窗控制
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.add('hidden');
+        }
+        
+        function showModal(modalId) {
+            document.getElementById(modalId).classList.remove('hidden');
+        }
+        
+        // 功能函數
+        function showCreateEvent() {
+            showModal('createEventModal');
+        }
+        
+        function saveEvent() {
+            closeModal('createEventModal');
+            showSuccess('活動建立成功！');
+        }
+        
+        function showSuccess(message) {
+            document.getElementById('successMessage').textContent = message;
+            showModal('successModal');
+            setTimeout(() => {
+                closeModal('successModal');
+            }, 3000);
+        }
+        
+        function showQRScanner() {
+            showModal('qrScannerModal');
+        }
+        
+        function simulateQRScan() {
+            closeModal('qrScannerModal');
+            showSuccess('打卡成功！');
+            
+            // 更新打卡記錄
+            const myCheckInList = document.getElementById('myCheckInList');
+            if (myCheckInList) {
+                const now = new Date();
+                const timeStr = now.toTimeString().slice(0, 8);
+                myCheckInList.innerHTML = `
+                    <div class="flex items-center justify-between p-4 bg-green-50 rounded-lg">
+                        <div class="flex items-center space-x-3">
+                            <i class="fas fa-sign-in-alt text-green-600"></i>
+                            <div>
+                                <p class="font-medium text-gray-800">簽到</p>
+                                <p class="text-sm text-gray-500">2025 科技論壇</p>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <p class="font-medium text-gray-800">${timeStr}</p>
+                            <p class="text-sm text-gray-500">QR Code</p>
+                        </div>
+                    </div>
+                ` + myCheckInList.innerHTML;
+            }
+        }
+        
+        function checkInGPS() {
+            showSuccess('GPS定位成功！您已在活動地點範圍內，打卡成功！');
+        }
+        
+        function checkInFace() {
+            showSuccess('人臉辨識成功！打卡完成！');
+        }
+        
+        function togglePassword() {
+            const passwordInput = document.getElementById('passwordInput');
+            const icon = event.currentTarget.querySelector('i');
+            
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                icon.classList.remove('fa-eye');
+                icon.classList.add('fa-eye-slash');
+            } else {
+                passwordInput.type = 'password';
+                icon.classList.remove('fa-eye-slash');
+                icon.classList.add('fa-eye');
+            }
+        }
+        
+        function toggleNotifications() {
+            const dropdown = document.getElementById('notificationDropdown');
+            dropdown.classList.toggle('hidden');
+        }
+        
+        function toggleUserMenu() {
+            const menu = document.getElementById('userMenu');
+            menu.classList.toggle('hidden');
+        }
+        
+        // 其他功能函數
+        function exportReport() {
+            showSuccess('報表匯出成功！已下載至您的電腦。');
+        }
+        
+        function showAddWorker() {
+            showSuccess('新增工讀生功能開發中...');
+        }
+        
+        function calculateSalary() {
+            showSuccess('薪資計算完成！');
+        }
+        
+        function exportSalary() {
+            showSuccess('薪資報表已匯出！');
+        }
+        
+        function confirmSalary() {
+            if (confirm('確認薪資金額無誤？')) {
+                showSuccess('薪資確認成功！');
+            }
+        }
+        
+        function showEventQR() {
+            generateQRCode();
+            showModal('qrModal');
+        }
+        
+        function downloadQR() {
+            showSuccess('QR Code 已下載！');
+        }
+        
+        function shareQR() {
+            showSuccess('分享連結已複製到剪貼板！');
+        }
+        
+        // 定時更新簽到記錄
+        setInterval(() => {
+            if (document.getElementById('checkInList')) {
+                addCheckInRecord();
+            }
+        }, 10000); // 每10秒更新一次
+        
+        // 關閉下拉選單（點擊外部）
+        document.addEventListener('click', function(event) {
+            const notificationDropdown = document.getElementById('notificationDropdown');
+            const userMenu = document.getElementById('userMenu');
+            
+            if (!event.target.closest('.fa-bell') && notificationDropdown) {
+                notificationDropdown.classList.add('hidden');
+            }
+            
+            if (!event.target.closest('.bg-purple-100') && userMenu) {
+                userMenu.classList.add('hidden');
+            }
+        });
     </script>
 </body>
 </html>
